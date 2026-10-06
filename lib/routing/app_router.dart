@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/database/app_database.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/workout/presentation/workout_plans_screen.dart';
 import '../features/workout/presentation/plan_detail_screen.dart';
@@ -114,7 +115,8 @@ final appRouter = GoRouter(
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,
       path: '/create-exercise',
-      builder: (context, state) => const CreateExerciseScreen(),
+      builder: (context, state) =>
+          CreateExerciseScreen(exerciseToEdit: state.extra as ExerciseEntry?),
     ),
     GoRoute(
       parentNavigatorKey: _rootNavigatorKey,

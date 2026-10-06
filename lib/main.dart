@@ -6,6 +6,8 @@ import 'core/providers/app_providers.dart';
 import 'core/theme/app_theme.dart';
 import 'data/database/app_database.dart';
 import 'data/repositories/settings_repository_impl.dart';
+import 'features/exercises/data/exercise_catalog_loader.dart';
+import 'features/exercises/data/exercise_catalog_sync.dart';
 import 'routing/app_router.dart';
 import 'services/notification_service.dart';
 
@@ -19,7 +21,12 @@ void main() async {
 
   // Create database & seed default exercise library and starter routine on first run
   final db = AppDatabase();
-  await db.seedDatabaseIfEmpty();
+  final catalog = await ExerciseCatalogLoader.loadFromAsset();
+  await db.seedDatabaseIfEmpty(catalog: catalog);
+
+  // Sync catalog updates if catalogVersion has increased
+  final catalogSync = ExerciseCatalogSync(db, prefs);
+  await catalogSync.syncIfNeeded(catalog: catalog);
 
   // Schedule workout reminders if enabled
   final repo = SettingsRepositoryImpl(prefs, db);

@@ -1,12 +1,16 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/app_providers.dart';
+import '../../../data/database/app_database.dart';
 
 class CreateExerciseScreen extends ConsumerStatefulWidget {
-  const CreateExerciseScreen({super.key});
+  final ExerciseEntry? exerciseToEdit;
+
+  const CreateExerciseScreen({super.key, this.exerciseToEdit});
 
   @override
   ConsumerState<CreateExerciseScreen> createState() =>
@@ -15,29 +19,81 @@ class CreateExerciseScreen extends ConsumerStatefulWidget {
 
 class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _descController = TextEditingController();
-  String _selectedMuscle = AppConstants.muscleGroups.first;
-  String _selectedEquipment = AppConstants.equipmentTypes.first;
+  late final TextEditingController _nameController;
+  late final TextEditingController _descController;
+  late final TextEditingController _instructionsController;
+  late final TextEditingController _tipsController;
+  late String _selectedMuscle;
+  late String _selectedEquipment;
+
+  @override
+  void initState() {
+    super.initState();
+    final ex = widget.exerciseToEdit;
+    _nameController = TextEditingController(text: ex?.name ?? '');
+    _descController = TextEditingController(text: ex?.description ?? '');
+    _instructionsController = TextEditingController(
+      text: ex?.instructions ?? '',
+    );
+    _tipsController = TextEditingController(text: ex?.tips ?? '');
+
+    _selectedMuscle =
+        (ex != null && AppConstants.muscleGroups.contains(ex.muscleGroup))
+        ? ex.muscleGroup
+        : AppConstants.muscleGroups.first;
+
+    _selectedEquipment =
+        (ex != null && AppConstants.equipmentTypes.contains(ex.equipment))
+        ? ex.equipment
+        : AppConstants.equipmentTypes.first;
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
     _descController.dispose();
+    _instructionsController.dispose();
+    _tipsController.dispose();
     super.dispose();
   }
 
   Future<void> _saveExercise() async {
     if (_formKey.currentState?.validate() ?? false) {
       final repo = ref.read(exerciseRepositoryProvider);
-      await repo.createExercise(
-        name: _nameController.text.trim(),
-        muscleGroup: _selectedMuscle,
-        equipment: _selectedEquipment,
-        description: _descController.text.trim().isEmpty
-            ? null
-            : _descController.text.trim(),
-      );
+      final desc = _descController.text.trim().isEmpty
+          ? null
+          : _descController.text.trim();
+      final instructions = _instructionsController.text.trim().isEmpty
+          ? null
+          : _instructionsController.text.trim();
+      final tips = _tipsController.text.trim().isEmpty
+          ? null
+          : _tipsController.text.trim();
+
+      if (widget.exerciseToEdit != null) {
+        // Edit existing exercise
+        final updated = widget.exerciseToEdit!.copyWith(
+          name: _nameController.text.trim(),
+          muscleGroup: _selectedMuscle,
+          equipment: _selectedEquipment,
+          description: Value(desc),
+          instructions: Value(instructions),
+          tips: Value(tips),
+          updatedAt: DateTime.now(),
+        );
+        await repo.updateExercise(updated);
+      } else {
+        // Create new custom exercise
+        await repo.createExercise(
+          name: _nameController.text.trim(),
+          muscleGroup: _selectedMuscle,
+          equipment: _selectedEquipment,
+          description: desc,
+          instructions: instructions,
+          tips: tips,
+        );
+      }
+
       if (mounted) {
         context.pop();
       }
@@ -46,8 +102,12 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.exerciseToEdit != null;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('New Custom Exercise')),
+      appBar: AppBar(
+        title: Text(isEditing ? 'Edit Exercise' : 'New Custom Exercise'),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -91,10 +151,29 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _descController,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: 'Description (optional)',
+                hintText: 'Short summary of the exercise...',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _instructionsController,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Instructions (optional)',
+                hintText:
+                    'Step 1: Set up...\nStep 2: Lower...\nStep 3: Press...',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _tipsController,
               maxLines: 3,
               decoration: const InputDecoration(
-                labelText: 'Description / Instructions (optional)',
-                hintText: 'Setup cues, form notes, range of motion...',
+                labelText: 'Form Tips & Cues (optional)',
+                hintText: 'Cues, common mistakes to avoid...',
               ),
             ),
             const SizedBox(height: 32),
@@ -102,7 +181,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: _saveExercise,
-                child: const Text('SAVE EXERCISE'),
+                child: Text(isEditing ? 'UPDATE EXERCISE' : 'SAVE EXERCISE'),
               ),
             ),
           ],

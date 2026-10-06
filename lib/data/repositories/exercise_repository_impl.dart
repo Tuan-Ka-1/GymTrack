@@ -26,6 +26,9 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
     required String muscleGroup,
     required String equipment,
     String? description,
+    String? instructions,
+    String? tips,
+    String? secondaryMuscles,
     String exerciseType = 'Weight & Reps',
   }) {
     return _db.insertExercise(
@@ -34,6 +37,9 @@ class ExerciseRepositoryImpl implements ExerciseRepository {
         muscleGroup: muscleGroup,
         equipment: equipment,
         description: Value(description),
+        instructions: Value(instructions),
+        tips: Value(tips),
+        secondaryMuscles: Value(secondaryMuscles),
         exerciseType: Value(exerciseType),
         isCustom: const Value(true),
         isArchived: const Value(false),

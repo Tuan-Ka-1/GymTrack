@@ -15,6 +15,9 @@ import '../../domain/repositories/workout_repository.dart';
 import '../../domain/repositories/exercise_repository.dart';
 import '../../domain/repositories/body_repository.dart';
 import '../../domain/repositories/settings_repository.dart';
+import '../../features/exercises/data/exercise_catalog_loader.dart';
+import '../../features/exercises/data/exercise_catalog_sync.dart';
+import '../../features/exercises/domain/exercise_catalog.dart';
 import '../../services/notification_service.dart';
 
 // -------------------------------------------------------------
@@ -58,6 +61,16 @@ final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider);
   final db = ref.watch(databaseProvider);
   return SettingsRepositoryImpl(prefs, db);
+});
+
+final exerciseCatalogProvider = FutureProvider<ExerciseCatalog>((ref) async {
+  return ExerciseCatalogLoader.loadFromAsset();
+});
+
+final exerciseCatalogSyncProvider = Provider<ExerciseCatalogSync>((ref) {
+  final db = ref.watch(databaseProvider);
+  final prefs = ref.watch(sharedPreferencesProvider);
+  return ExerciseCatalogSync(db, prefs);
 });
 
 // -------------------------------------------------------------

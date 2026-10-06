@@ -189,6 +189,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       try {
         final repo = ref.read(settingsRepositoryProvider);
         await repo.importBackupJson(controller.text.trim());
+        // Run catalog sync after import to ensure catalog exercises are present and backfilled
+        await ref.read(exerciseCatalogSyncProvider).syncIfNeeded(force: true);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Database restored successfully!')),
@@ -219,6 +221,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (confirmed) {
       final repo = ref.read(settingsRepositoryProvider);
       await repo.clearAllData();
+      // Re-seed and re-sync catalog after clearing all data
+      final db = ref.read(databaseProvider);
+      final catalog = await ref.read(exerciseCatalogProvider.future);
+      await db.seedDatabaseIfEmpty(catalog: catalog);
+      await ref.read(exerciseCatalogSyncProvider).syncIfNeeded(force: true);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('All data has been reset to defaults.')),

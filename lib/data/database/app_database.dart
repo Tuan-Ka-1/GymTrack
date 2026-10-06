@@ -95,27 +95,53 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
-  Future<void> seedDatabaseIfEmpty() async {
+  Future<void> seedDatabaseIfEmpty({dynamic catalog}) async {
     if (await (select(
       exercises,
     )..limit(1)).get().then((rows) => rows.isNotEmpty)) {
       return;
     }
-    await batch((b) {
-      b.insertAll(
-        exercises,
-        SeedData.defaultExercises
-            .map(
-              (e) => ExercisesCompanion.insert(
-                name: e.name,
-                muscleGroup: e.muscleGroup,
-                equipment: e.equipment,
-                description: Value(e.description),
-              ),
-            )
-            .toList(),
-      );
-    });
+    if (catalog != null) {
+      await batch((b) {
+        b.insertAll(
+          exercises,
+          (catalog.exercises as List<dynamic>)
+              .map(
+                (e) => ExercisesCompanion.insert(
+                  name: e.getName(locale: 'en') as String,
+                  muscleGroup: e.muscleGroup as String,
+                  equipment: e.equipment as String,
+                  exerciseType: Value(e.exerciseType as String),
+                  catalogKey: Value(e.key as String),
+                  secondaryMuscles: Value(
+                    (e.secondaryMuscles as List<String>).isEmpty
+                        ? null
+                        : jsonEncode(e.secondaryMuscles),
+                  ),
+                  isCustom: const Value(false),
+                  isArchived: const Value(false),
+                ),
+              )
+              .toList(),
+        );
+      });
+    } else {
+      await batch((b) {
+        b.insertAll(
+          exercises,
+          SeedData.defaultExercises
+              .map(
+                (e) => ExercisesCompanion.insert(
+                  name: e.name,
+                  muscleGroup: e.muscleGroup,
+                  equipment: e.equipment,
+                  description: Value(e.description),
+                ),
+              )
+              .toList(),
+        );
+      });
+    }
     final planId = await into(workoutPlans).insert(
       WorkoutPlansCompanion.insert(
         name: 'PPL Starter',

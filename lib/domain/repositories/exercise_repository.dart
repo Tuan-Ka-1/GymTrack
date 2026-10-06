@@ -9,6 +9,9 @@ abstract class ExerciseRepository {
     required String muscleGroup,
     required String equipment,
     String? description,
+    String? instructions,
+    String? tips,
+    String? secondaryMuscles,
     String exerciseType = 'Weight & Reps',
   });
   Future<bool> updateExercise(ExerciseEntry entry);

@@ -7,6 +7,9 @@ import '../../../core/providers/app_providers.dart';
 import '../../../core/widgets/confirm_dialog.dart';
 import '../../../data/database/app_database.dart';
 import '../../../domain/repositories/exercise_repository.dart';
+import '../domain/exercise_catalog.dart';
+import '../domain/exercise_display_helper.dart';
+import 'exercise_detail_screen.dart';
 
 class ExerciseLibraryScreen extends ConsumerStatefulWidget {
   const ExerciseLibraryScreen({super.key});
@@ -19,11 +22,15 @@ class ExerciseLibraryScreen extends ConsumerStatefulWidget {
 class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
   String _searchQuery = '';
   String? _selectedMuscle;
+  String? _selectedEquipment;
+  String? _selectedExerciseType;
   bool _showArchived = false;
 
   @override
   Widget build(BuildContext context) {
     final exercisesAsync = ref.watch(exercisesStreamProvider);
+    final catalogAsync = ref.watch(exerciseCatalogProvider);
+    final catalog = catalogAsync.value;
     final repo = ref.watch(exerciseRepositoryProvider);
     final theme = Theme.of(context);
 
@@ -45,24 +52,32 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
       ),
       body: Column(
         children: [
+          // Search input
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: TextField(
-              decoration: const InputDecoration(
-                hintText: 'Search by exercise name...',
-                prefixIcon: Icon(Icons.search),
+              decoration: InputDecoration(
+                hintText: 'Search by name, Vietnamese, keyword...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () => setState(() => _searchQuery = ''),
+                      )
+                    : null,
               ),
-              onChanged: (val) =>
-                  setState(() => _searchQuery = val.toLowerCase().trim()),
+              onChanged: (val) => setState(() => _searchQuery = val),
             ),
           ),
+
+          // Horizontal Filter Chips: Muscle Group
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Row(
               children: [
                 FilterChip(
-                  label: const Text('All'),
+                  label: const Text('All Muscles'),
                   selected: _selectedMuscle == null,
                   onSelected: (_) => setState(() => _selectedMuscle = null),
                 ),
@@ -85,13 +100,108 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
               ],
             ),
           ),
+
+          // Horizontal Filter Chips: Equipment & Type
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Row(
+              children: [
+                FilterChip(
+                  avatar: const Icon(Icons.build_outlined, size: 14),
+                  label: Text(_selectedEquipment ?? 'Equipment'),
+                  selected: _selectedEquipment != null,
+                  onSelected: (_) {
+                    if (_selectedEquipment != null) {
+                      setState(() => _selectedEquipment = null);
+                    } else {
+                      _showEquipmentPicker(context);
+                    }
+                  },
+                ),
+                const SizedBox(width: 8),
+                FilterChip(
+                  avatar: const Icon(Icons.repeat, size: 14),
+                  label: Text(_selectedExerciseType ?? 'Exercise Type'),
+                  selected: _selectedExerciseType != null,
+                  onSelected: (_) {
+                    if (_selectedExerciseType != null) {
+                      setState(() => _selectedExerciseType = null);
+                    } else {
+                      _showTypePicker(context);
+                    }
+                  },
+                ),
+                if (_selectedEquipment != null ||
+                    _selectedExerciseType != null) ...[
+                  const SizedBox(width: 8),
+                  ActionChip(
+                    avatar: const Icon(Icons.close, size: 14),
+                    label: const Text('Clear Filters'),
+                    onPressed: () => setState(() {
+                      _selectedEquipment = null;
+                      _selectedExerciseType = null;
+                    }),
+                  ),
+                ],
+              ],
+            ),
+          ),
+
           const Divider(height: 16),
           Expanded(
             child: _showArchived
-                ? _buildArchivedList(repo, theme)
-                : _buildActiveList(exercisesAsync, repo, theme),
+                ? _buildArchivedList(repo, theme, catalog)
+                : _buildActiveList(exercisesAsync, repo, theme, catalog),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showEquipmentPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: AppConstants.equipmentTypes.map((eq) {
+            return ListTile(
+              title: Text(eq),
+              trailing: _selectedEquipment == eq
+                  ? const Icon(Icons.check)
+                  : null,
+              onTap: () {
+                setState(() => _selectedEquipment = eq);
+                Navigator.of(ctx).pop();
+              },
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  void _showTypePicker(BuildContext context) {
+    final types = ['Weight & Reps', 'Bodyweight Reps', 'Duration', 'Cardio'];
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: types.map((t) {
+            return ListTile(
+              title: Text(t),
+              trailing: _selectedExerciseType == t
+                  ? const Icon(Icons.check)
+                  : null,
+              onTap: () {
+                setState(() => _selectedExerciseType = t);
+                Navigator.of(ctx).pop();
+              },
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -100,84 +210,132 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
     AsyncValue<List<ExerciseEntry>> exercisesAsync,
     ExerciseRepository repo,
     ThemeData theme,
+    ExerciseCatalog? catalog,
   ) {
     return exercisesAsync.when(
       data: (exercises) {
         final filtered = exercises.where((e) {
-          final matchesSearch =
-              _searchQuery.isEmpty ||
-              e.name.toLowerCase().contains(_searchQuery);
+          final matchesSearch = ExerciseDisplayHelper.matchesQuery(
+            e,
+            _searchQuery,
+            catalog: catalog,
+          );
           final matchesMuscle =
               _selectedMuscle == null || e.muscleGroup == _selectedMuscle;
-          return matchesSearch && matchesMuscle;
+          final matchesEquipment =
+              _selectedEquipment == null || e.equipment == _selectedEquipment;
+          final matchesType =
+              _selectedExerciseType == null ||
+              e.exerciseType == _selectedExerciseType;
+          return matchesSearch &&
+              matchesMuscle &&
+              matchesEquipment &&
+              matchesType &&
+              !e.isArchived;
         }).toList();
 
         if (filtered.isEmpty) {
           return const Center(child: Text('No exercises found'));
         }
 
-        return ListView.separated(
+        return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           itemCount: filtered.length,
-          separatorBuilder: (_, __) => const Divider(height: 1),
           itemBuilder: (context, index) {
             final ex = filtered[index];
-            return ListTile(
-              contentPadding: const EdgeInsets.symmetric(vertical: 4),
-              title: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      ex.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
+            final displayName = ExerciseDisplayHelper.getName(
+              ex,
+              catalog: catalog,
+              locale: 'en',
+            );
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
+                leading: CircleAvatar(
+                  backgroundColor: theme.colorScheme.primaryContainer,
+                  child: Icon(
+                    Icons.fitness_center,
+                    color: theme.colorScheme.onPrimaryContainer,
                   ),
-                  if (ex.isCustom)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(
-                          alpha: 0.15,
-                        ),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+                ),
+                title: Row(
+                  children: [
+                    Expanded(
                       child: Text(
-                        'CUSTOM',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        displayName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
-                ],
-              ),
-              subtitle: Text('${ex.muscleGroup} • ${ex.equipment}'),
-              trailing: ex.isCustom
-                  ? IconButton(
-                      icon: const Icon(
-                        Icons.archive_outlined,
-                        size: 20,
-                        color: Colors.grey,
+                    if (ex.isCustom)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.15,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'CUSTOM',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      onPressed: () async {
-                        final confirmed = await ConfirmDialog.show(
-                          context,
-                          title: 'Archive Exercise?',
-                          message:
-                              'This will hide "${ex.name}" from the library and pickers.\nYour workout history for this exercise will be preserved.',
-                          confirmText: 'Archive',
-                          isDestructive: true,
-                        );
-                        if (confirmed) {
-                          await repo.archiveExercise(ex.id);
-                        }
-                      },
-                    )
-                  : null,
+                  ],
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    '${ex.muscleGroup} • ${ex.equipment} • ${ex.exerciseType}',
+                  ),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (ex.isCustom) ...[
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined, size: 20),
+                        tooltip: 'Edit Custom Exercise',
+                        onPressed: () =>
+                            context.push('/create-exercise', extra: ex),
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.archive_outlined,
+                          size: 20,
+                          color: Colors.grey,
+                        ),
+                        tooltip: 'Archive',
+                        onPressed: () async {
+                          final confirmed = await ConfirmDialog.show(
+                            context,
+                            title: 'Archive Exercise?',
+                            message:
+                                'This will hide "${ex.name}" from the library and pickers.\nYour workout history for this exercise will be preserved.',
+                            confirmText: 'Archive',
+                            isDestructive: true,
+                          );
+                          if (confirmed) {
+                            await repo.archiveExercise(ex.id);
+                          }
+                        },
+                      ),
+                    ] else
+                      const Icon(Icons.chevron_right, color: Colors.grey),
+                  ],
+                ),
+                onTap: () => ExerciseDetailScreen.show(context, ex),
+              ),
             );
           },
         );
@@ -187,7 +345,11 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
     );
   }
 
-  Widget _buildArchivedList(ExerciseRepository repo, ThemeData theme) {
+  Widget _buildArchivedList(
+    ExerciseRepository repo,
+    ThemeData theme,
+    ExerciseCatalog? catalog,
+  ) {
     return FutureBuilder<List<ExerciseEntry>>(
       future: repo.getAllExercises(includeArchived: true),
       builder: (context, snapshot) {
@@ -199,26 +361,34 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
         if (archived.isEmpty) {
           return const Center(child: Text('No archived exercises'));
         }
-        return ListView.separated(
+        return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           itemCount: archived.length,
-          separatorBuilder: (_, __) => const Divider(height: 1),
           itemBuilder: (context, index) {
             final ex = archived[index];
-            return ListTile(
-              contentPadding: const EdgeInsets.symmetric(vertical: 4),
-              title: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      ex.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
+            final displayName = ExerciseDisplayHelper.getName(
+              ex,
+              catalog: catalog,
+              locale: 'en',
+            );
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
+                title: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        displayName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
-                  ),
-                  if (ex.isCustom)
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 6,
@@ -237,29 +407,33 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                         ),
                       ),
                     ),
-                ],
-              ),
-              subtitle: Text(
-                '${ex.muscleGroup} • ${ex.equipment}',
-                style: const TextStyle(color: Colors.grey),
-              ),
-              trailing: IconButton(
-                icon: const Icon(
-                  Icons.unarchive_outlined,
-                  size: 20,
-                  color: Colors.green,
+                  ],
                 ),
-                onPressed: () async {
-                  final confirmed = await ConfirmDialog.show(
-                    context,
-                    title: 'Restore Exercise?',
-                    message: 'Restore "${ex.name}" to the library and pickers?',
-                    isDestructive: false,
-                  );
-                  if (confirmed) {
-                    await repo.unarchiveExercise(ex.id);
-                  }
-                },
+                subtitle: Text(
+                  '${ex.muscleGroup} • ${ex.equipment}',
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(
+                    Icons.unarchive_outlined,
+                    size: 20,
+                    color: Colors.green,
+                  ),
+                  tooltip: 'Restore',
+                  onPressed: () async {
+                    final confirmed = await ConfirmDialog.show(
+                      context,
+                      title: 'Restore Exercise?',
+                      message:
+                          'Restore "${ex.name}" to the library and pickers?',
+                      isDestructive: false,
+                    );
+                    if (confirmed) {
+                      await repo.unarchiveExercise(ex.id);
+                    }
+                  },
+                ),
+                onTap: () => ExerciseDetailScreen.show(context, ex),
               ),
             );
           },
