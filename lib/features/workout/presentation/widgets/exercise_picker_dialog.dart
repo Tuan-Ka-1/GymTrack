@@ -141,53 +141,69 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
               ),
 
               // Equipment & Type filter chips
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
-                ),
-                child: Row(
-                  children: [
-                    FilterChip(
-                      avatar: const Icon(Icons.build_outlined, size: 14),
-                      label: Text(_selectedEquipment ?? 'Equipment'),
-                      selected: _selectedEquipment != null,
-                      onSelected: (_) {
-                        if (_selectedEquipment != null) {
-                          setState(() => _selectedEquipment = null);
-                        } else {
-                          _showEquipmentPicker(context);
-                        }
-                      },
+              Builder(
+                builder: (context) {
+                  final exercises = exercisesAsync.value ?? [];
+                  final availableTypes = exercises
+                      .map((e) => e.exerciseType)
+                      .toSet()
+                      .toList();
+                  final showTypeFilter = availableTypes.length > 1;
+
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
                     ),
-                    const SizedBox(width: 8),
-                    FilterChip(
-                      avatar: const Icon(Icons.repeat, size: 14),
-                      label: Text(_selectedExerciseType ?? 'Exercise Type'),
-                      selected: _selectedExerciseType != null,
-                      onSelected: (_) {
-                        if (_selectedExerciseType != null) {
-                          setState(() => _selectedExerciseType = null);
-                        } else {
-                          _showTypePicker(context);
-                        }
-                      },
+                    child: Row(
+                      children: [
+                        FilterChip(
+                          avatar: const Icon(Icons.build_outlined, size: 14),
+                          label: Text(_selectedEquipment ?? 'Equipment'),
+                          selected: _selectedEquipment != null,
+                          onSelected: (_) {
+                            if (_selectedEquipment != null) {
+                              setState(() => _selectedEquipment = null);
+                            } else {
+                              _showEquipmentPicker(context);
+                            }
+                          },
+                        ),
+                        if (showTypeFilter) ...[
+                          const SizedBox(width: 8),
+                          FilterChip(
+                            avatar: const Icon(Icons.repeat, size: 14),
+                            label: Text(
+                              _selectedExerciseType ?? 'Exercise Type',
+                            ),
+                            selected: _selectedExerciseType != null,
+                            onSelected: (_) {
+                              if (_selectedExerciseType != null) {
+                                setState(() => _selectedExerciseType = null);
+                              } else {
+                                _showTypePicker(context, availableTypes);
+                              }
+                            },
+                          ),
+                        ],
+                        if (_selectedEquipment != null ||
+                            (showTypeFilter &&
+                                _selectedExerciseType != null)) ...[
+                          const SizedBox(width: 8),
+                          ActionChip(
+                            avatar: const Icon(Icons.close, size: 14),
+                            label: const Text('Clear Filters'),
+                            onPressed: () => setState(() {
+                              _selectedEquipment = null;
+                              _selectedExerciseType = null;
+                            }),
+                          ),
+                        ],
+                      ],
                     ),
-                    if (_selectedEquipment != null ||
-                        _selectedExerciseType != null) ...[
-                      const SizedBox(width: 8),
-                      ActionChip(
-                        avatar: const Icon(Icons.close, size: 14),
-                        label: const Text('Clear Filters'),
-                        onPressed: () => setState(() {
-                          _selectedEquipment = null;
-                          _selectedExerciseType = null;
-                        }),
-                      ),
-                    ],
-                  ],
-                ),
+                  );
+                },
               ),
 
               const Divider(height: 16),
@@ -358,8 +374,10 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
     );
   }
 
-  void _showTypePicker(BuildContext context) {
-    final types = ['Weight & Reps', 'Bodyweight Reps', 'Duration', 'Cardio'];
+  void _showTypePicker(BuildContext context, [List<String>? availableTypes]) {
+    final types =
+        availableTypes ??
+        ['Weight & Reps', 'Bodyweight Reps', 'Duration', 'Cardio'];
     showModalBottomSheet(
       context: context,
       builder: (ctx) => SafeArea(

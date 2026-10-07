@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import '../../features/exercises/domain/exercise_catalog.dart';
 import 'seed_data.dart';
 import 'tables/tables.dart';
 
@@ -95,7 +96,7 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
-  Future<void> seedDatabaseIfEmpty({dynamic catalog}) async {
+  Future<void> seedDatabaseIfEmpty({ExerciseCatalog? catalog}) async {
     if (await (select(
       exercises,
     )..limit(1)).get().then((rows) => rows.isNotEmpty)) {
@@ -105,16 +106,16 @@ class AppDatabase extends _$AppDatabase {
       await batch((b) {
         b.insertAll(
           exercises,
-          (catalog.exercises as List<dynamic>)
+          catalog.exercises
               .map(
                 (e) => ExercisesCompanion.insert(
-                  name: e.getName(locale: 'en') as String,
-                  muscleGroup: e.muscleGroup as String,
-                  equipment: e.equipment as String,
-                  exerciseType: Value(e.exerciseType as String),
-                  catalogKey: Value(e.key as String),
+                  name: e.getName(locale: 'en'),
+                  muscleGroup: e.muscleGroup,
+                  equipment: e.equipment,
+                  exerciseType: Value(e.exerciseType),
+                  catalogKey: Value(e.key),
                   secondaryMuscles: Value(
-                    (e.secondaryMuscles as List<String>).isEmpty
+                    e.secondaryMuscles.isEmpty
                         ? null
                         : jsonEncode(e.secondaryMuscles),
                   ),
