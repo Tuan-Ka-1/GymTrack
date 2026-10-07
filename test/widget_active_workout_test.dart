@@ -7,6 +7,7 @@ import 'package:gymtrack/data/database/app_database.dart';
 import 'package:gymtrack/data/repositories/workout_repository_impl.dart';
 import 'package:gymtrack/features/workout/presentation/active_workout_screen.dart';
 import 'package:gymtrack/features/workout/presentation/widgets/rest_timer_banner.dart';
+import 'package:gymtrack/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -137,7 +138,11 @@ void main() {
               databaseProvider.overrideWithValue(db),
               workoutRepositoryProvider.overrideWithValue(repo),
             ],
-            child: MaterialApp(home: ActiveWorkoutScreen(sessionId: sessionId)),
+            child: MaterialApp(
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: ActiveWorkoutScreen(sessionId: sessionId),
+            ),
           ),
         );
         await tester.pumpAndSettle();

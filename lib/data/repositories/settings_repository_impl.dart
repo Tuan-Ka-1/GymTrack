@@ -33,6 +33,16 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
+  Future<String?> getLanguage() async {
+    return _prefs.getString(AppConstants.keyLanguage);
+  }
+
+  @override
+  Future<void> setLanguage(String languageCode) async {
+    await _prefs.setString(AppConstants.keyLanguage, languageCode);
+  }
+
+  @override
   Future<int> getDefaultRestTime() async {
     return _prefs.getInt(AppConstants.keyDefaultRestTime) ??
         AppConstants.defaultRestSeconds;

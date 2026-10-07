@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/app_providers.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class RestTimerBanner extends ConsumerWidget {
   const RestTimerBanner({super.key}) : _state = null;
@@ -25,6 +26,7 @@ class RestTimerBanner extends ConsumerWidget {
     }
 
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -62,7 +64,7 @@ class RestTimerBanner extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'REST TIMER',
+                  l10n?.restTimerTitle.toUpperCase() ?? 'REST TIMER',
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: Colors.grey,
                     fontWeight: FontWeight.bold,

@@ -5,6 +5,8 @@ import '../../../../core/providers/app_providers.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../domain/repositories/workout_repository.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../exercises/domain/exercise_display_helper.dart';
 import 'workout_set_row.dart';
 
 class ActiveExerciseCard extends ConsumerWidget {
@@ -24,6 +26,15 @@ class ActiveExerciseCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final catalog = ref.watch(exerciseCatalogProvider).value;
+    final locale = Localizations.localeOf(context).languageCode;
+    final l10n = AppLocalizations.of(context)!;
+
+    final displayName = ExerciseDisplayHelper.resolveName(
+      exSession.exerciseName,
+      catalog: catalog,
+      locale: locale,
+    );
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -37,7 +48,7 @@ class ActiveExerciseCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    exSession.exerciseName,
+                    displayName,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -52,10 +63,7 @@ class ActiveExerciseCard extends ConsumerWidget {
                   onPressed: () {
                     ref
                         .read(restTimerProvider.notifier)
-                        .startTimer(
-                          seconds: 90,
-                          exerciseName: exSession.exerciseName,
-                        );
+                        .startTimer(seconds: 90, exerciseName: displayName);
                   },
                 ),
               ],
@@ -96,7 +104,7 @@ class ActiveExerciseCard extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Previous: $prevSummary',
+                          l10n.activeWorkoutPrevious(prevSummary),
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.blueAccent,
@@ -113,11 +121,11 @@ class ActiveExerciseCard extends ConsumerWidget {
             // Sets Table Header
             Row(
               children: [
-                const SizedBox(
+                SizedBox(
                   width: 36,
                   child: Text(
-                    'SET',
-                    style: TextStyle(
+                    l10n.activeWorkoutSetHeader,
+                    style: const TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
                       fontWeight: FontWeight.bold,
@@ -128,7 +136,7 @@ class ActiveExerciseCard extends ConsumerWidget {
                 Expanded(
                   child: Center(
                     child: Text(
-                      'WEIGHT ($weightUnit)',
+                      l10n.activeWorkoutWeightHeader(weightUnit),
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.grey,
@@ -138,11 +146,11 @@ class ActiveExerciseCard extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Center(
                     child: Text(
-                      'REPS',
-                      style: TextStyle(
+                      l10n.activeWorkoutRepsHeader,
+                      style: const TextStyle(
                         fontSize: 12,
                         color: Colors.grey,
                         fontWeight: FontWeight.bold,
@@ -173,7 +181,7 @@ class ActiveExerciseCard extends ConsumerWidget {
                         setEntry: setEntry,
                         weightUnit: weightUnit,
                         repo: repo,
-                        exerciseName: exSession.exerciseName,
+                        exerciseName: displayName,
                         restSeconds: exSession.restSeconds,
                       ),
                     ),
@@ -182,9 +190,9 @@ class ActiveExerciseCard extends ConsumerWidget {
                       alignment: Alignment.centerLeft,
                       child: TextButton.icon(
                         icon: const Icon(Icons.add, size: 18),
-                        label: const Text(
-                          '+ ADD SET',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        label: Text(
+                          l10n.activeWorkoutAddSet,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         onPressed: () {
                           final autoFill = ref.read(autoFillPreviousProvider);

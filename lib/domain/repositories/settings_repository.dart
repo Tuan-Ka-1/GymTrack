@@ -5,6 +5,9 @@ abstract class SettingsRepository {
   Future<String> getWeightUnit();
   Future<void> setWeightUnit(String unit);
 
+  Future<String?> getLanguage();
+  Future<void> setLanguage(String languageCode);
+
   Future<int> getDefaultRestTime();
   Future<void> setDefaultRestTime(int seconds);
 

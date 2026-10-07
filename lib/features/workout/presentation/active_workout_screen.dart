@@ -8,6 +8,7 @@ import '../../../core/providers/app_providers.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/confirm_dialog.dart';
 import '../../../data/database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
 import 'widgets/active_exercise_card.dart';
 import 'widgets/exercise_picker_dialog.dart';
 import 'widgets/rest_timer_banner.dart';
@@ -66,11 +67,12 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
   }
 
   Future<void> _finishWorkout() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await ConfirmDialog.show(
       context,
-      title: 'Finish Workout?',
-      message: 'Are you sure you want to finish and save this workout session?',
-      confirmText: 'Finish',
+      title: l10n.activeWorkoutFinishDialogTitle,
+      message: l10n.activeWorkoutFinishDialogMessage,
+      confirmText: l10n.activeWorkoutFinishDialogConfirm,
     );
 
     if (confirmed) {
@@ -86,11 +88,12 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
   }
 
   Future<void> _cancelWorkout() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await ConfirmDialog.show(
       context,
-      title: 'Discard Workout?',
-      message: 'Are you sure you want to cancel and delete this workout session? Data will not be saved.',
-      confirmText: 'Discard',
+      title: l10n.activeWorkoutDiscardDialogTitle,
+      message: l10n.activeWorkoutDiscardDialogMessage,
+      confirmText: l10n.activeWorkoutDiscardDialogConfirm,
       isDestructive: true,
     );
 
@@ -108,6 +111,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
     final db = ref.watch(databaseProvider);
     final repo = ref.watch(workoutRepositoryProvider);
     final weightUnit = ref.watch(weightUnitProvider);
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return PopScope(
@@ -122,9 +126,12 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Active Workout',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                l10n.activeWorkoutTitle,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
                 Formatters.formatTimer(_elapsedSeconds),
@@ -152,9 +159,9 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                 ),
                 onPressed: _finishWorkout,
                 icon: const Icon(Icons.check, size: 18),
-                label: const Text(
-                  'FINISH',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                label: Text(
+                  l10n.activeWorkoutFinishButton,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -188,9 +195,9 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   icon: const Icon(Icons.add),
-                  label: const Text(
-                    '+ ADD EXERCISE',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  label: Text(
+                    l10n.activeWorkoutAddExercise,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   onPressed: _addExercise,
                 ),
@@ -201,16 +208,16 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Session Notes',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Text(
+                          l10n.activeWorkoutNotesTitle,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
                         TextField(
                           controller: _notesController,
                           maxLines: 2,
-                          decoration: const InputDecoration(
-                            hintText: 'How was the workout? E.g., felt strong today...',
+                          decoration: InputDecoration(
+                            hintText: l10n.activeWorkoutNotesHint,
                           ),
                         ),
                       ],

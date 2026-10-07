@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/providers/app_providers.dart';
 import '../../../../core/widgets/confirm_dialog.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../domain/repositories/workout_repository.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../exercises/domain/exercise_display_helper.dart';
 import 'exercise_picker_dialog.dart';
 
 class DayCard extends StatelessWidget {
@@ -36,6 +40,7 @@ class DayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -56,7 +61,7 @@ class DayCard extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit, size: 20, color: Colors.grey),
-                  tooltip: 'Rename Day',
+                  tooltip: l10n.dayCardRenameTooltip,
                   onPressed: onRenameDay,
                 ),
                 FilledButton.icon(
@@ -69,9 +74,12 @@ class DayCard extends StatelessWidget {
                     ),
                   ),
                   icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                  label: const Text(
-                    'START',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  label: Text(
+                    l10n.dayCardStartButton,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
                   onPressed: onStartWorkout,
                 ),
@@ -85,9 +93,8 @@ class DayCard extends StatelessWidget {
                   onPressed: () async {
                     final confirmed = await ConfirmDialog.show(
                       context,
-                      title: 'Delete Day?',
-                      message:
-                          'Are you sure you want to delete "${day.name}" and its exercises?',
+                      title: l10n.dayCardDeleteTitle,
+                      message: l10n.dayCardDeleteMessage(day.name),
                       isDestructive: true,
                     );
                     if (confirmed) {
@@ -108,7 +115,7 @@ class DayCard extends StatelessWidget {
                     child: Center(
                       child: TextButton.icon(
                         icon: const Icon(Icons.add),
-                        label: const Text('Add Exercise to this day'),
+                        label: Text(l10n.dayCardAddExerciseEmpty),
                         onPressed: () => _addExerciseToDay(context),
                       ),
                     ),
@@ -144,9 +151,9 @@ class DayCard extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: TextButton.icon(
                           icon: const Icon(Icons.add, size: 18),
-                          label: const Text(
-                            '+ Add Exercise',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                          label: Text(
+                            l10n.dayCardAddExerciseButton,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           onPressed: () => _addExerciseToDay(context),
                         ),
@@ -163,7 +170,7 @@ class DayCard extends StatelessWidget {
   }
 }
 
-class ExerciseListTile extends StatelessWidget {
+class ExerciseListTile extends ConsumerWidget {
   final WorkoutExerciseEntry we;
   final AppDatabase db;
   final WorkoutRepository repo;
@@ -178,7 +185,11 @@ class ExerciseListTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final catalog = ref.watch(exerciseCatalogProvider).value;
+    final locale = Localizations.localeOf(context).languageCode;
+    final l10n = AppLocalizations.of(context)!;
+
     return FutureBuilder<ExerciseEntry?>(
       future: (db.select(
         db.exercises,
@@ -189,16 +200,27 @@ class ExerciseListTile extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
+        final exerciseDisplayName = ExerciseDisplayHelper.resolveName(
+          exercise.name,
+          catalog: catalog,
+          locale: locale,
+        );
+
         return ListTile(
           contentPadding: EdgeInsets.zero,
           dense: true,
           leading: const Icon(Icons.drag_handle, size: 18, color: Colors.grey),
           title: Text(
-            exercise.name,
+            exerciseDisplayName,
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           subtitle: Text(
-            '${we.targetSets} sets • ${we.targetMinReps}-${we.targetMaxReps} reps • ${we.restSeconds}s rest',
+            l10n.planDetailExerciseSubtitle(
+              we.targetSets,
+              we.targetMinReps,
+              we.targetMaxReps,
+              we.restSeconds,
+            ),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -210,7 +232,7 @@ class ExerciseListTile extends StatelessWidget {
                   color: Colors.blueAccent,
                 ),
                 onPressed: () => onEdit(context, we),
-                tooltip: 'Edit Settings',
+                tooltip: l10n.planDetailEditTooltip,
               ),
               IconButton(
                 icon: const Icon(
@@ -219,7 +241,7 @@ class ExerciseListTile extends StatelessWidget {
                   color: Colors.redAccent,
                 ),
                 onPressed: () => repo.removeExerciseFromDay(we.id),
-                tooltip: 'Remove',
+                tooltip: l10n.planDetailRemoveTooltip,
               ),
             ],
           ),

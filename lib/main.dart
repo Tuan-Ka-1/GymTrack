@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/constants/app_constants.dart';
 import 'core/providers/app_providers.dart';
 import 'core/theme/app_theme.dart';
 import 'data/database/app_database.dart';
 import 'data/repositories/settings_repository_impl.dart';
 import 'features/exercises/data/exercise_catalog_loader.dart';
 import 'features/exercises/data/exercise_catalog_sync.dart';
+import 'l10n/app_localizations.dart';
 import 'routing/app_router.dart';
 import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting();
 
   // Initialize offline local storage & notifications
   final prefs = await SharedPreferences.getInstance();
@@ -36,10 +40,24 @@ void main() async {
     final days = await repo.getReminderDays();
     final hour = await repo.getReminderHour();
     final minute = await repo.getReminderMinute();
+    final savedLang = prefs.getString(AppConstants.keyLanguage);
+    String languageCode = 'en';
+    if (savedLang != null && (savedLang == 'en' || savedLang == 'vi')) {
+      languageCode = savedLang;
+    } else {
+      try {
+        final platformLocale =
+            WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+        if (platformLocale == 'vi') languageCode = 'vi';
+      } catch (_) {}
+    }
+    final l10n = lookupAppLocalizations(Locale(languageCode));
     await notificationService.scheduleWorkoutReminders(
       daysOfWeek: days,
       hour: hour,
       minute: minute,
+      title: l10n.settingsReminderNotificationTitle,
+      body: l10n.settingsReminderNotificationBody,
     );
   }
 
@@ -60,6 +78,7 @@ class GymTrackApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final languageCode = ref.watch(languageProvider);
 
     return MaterialApp.router(
       title: 'GymTrack',
@@ -67,6 +86,9 @@ class GymTrackApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
+      locale: Locale(languageCode),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: appRouter,
     );
   }

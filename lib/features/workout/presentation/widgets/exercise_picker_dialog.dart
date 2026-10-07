@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/providers/app_providers.dart';
 import '../../../../data/database/app_database.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../exercises/domain/exercise_display_helper.dart';
 import '../../../exercises/presentation/exercise_detail_screen.dart';
 
@@ -36,6 +37,8 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
     final catalogAsync = ref.watch(exerciseCatalogProvider);
     final catalog = catalogAsync.value;
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.85,
@@ -69,7 +72,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                 child: Row(
                   children: [
                     Text(
-                      'Select Exercise',
+                      l10n.exercisePickerTitle,
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -91,7 +94,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                 ),
                 child: TextField(
                   decoration: InputDecoration(
-                    hintText: 'Search by name, Vietnamese, keyword...',
+                    hintText: l10n.exerciseLibrarySearchHint,
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
@@ -114,7 +117,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                 child: Row(
                   children: [
                     FilterChip(
-                      label: const Text('All Muscles'),
+                      label: Text(l10n.exerciseLibraryAllMuscles),
                       selected: _selectedMuscle == null,
                       onSelected: (selected) {
                         setState(() => _selectedMuscle = null);
@@ -123,10 +126,15 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                     const SizedBox(width: 8),
                     ...AppConstants.muscleGroups.map((muscle) {
                       final isSelected = _selectedMuscle == muscle;
+                      final localizedMuscle =
+                          ExerciseDisplayHelper.getLocalizedMuscle(
+                            muscle,
+                            locale: locale,
+                          );
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: FilterChip(
-                          label: Text(muscle),
+                          label: Text(localizedMuscle),
                           selected: isSelected,
                           onSelected: (selected) {
                             setState(() {
@@ -150,6 +158,20 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                       .toList();
                   final showTypeFilter = availableTypes.length > 1;
 
+                  final equipmentLabel = _selectedEquipment != null
+                      ? ExerciseDisplayHelper.getLocalizedEquipment(
+                          _selectedEquipment!,
+                          locale: locale,
+                        )
+                      : l10n.exerciseLibraryEquipmentFilter;
+
+                  final typeLabel = _selectedExerciseType != null
+                      ? ExerciseDisplayHelper.getLocalizedExerciseType(
+                          _selectedExerciseType!,
+                          locale: locale,
+                        )
+                      : l10n.exerciseLibraryTypeFilter;
+
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(
@@ -160,7 +182,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                       children: [
                         FilterChip(
                           avatar: const Icon(Icons.build_outlined, size: 14),
-                          label: Text(_selectedEquipment ?? 'Equipment'),
+                          label: Text(equipmentLabel),
                           selected: _selectedEquipment != null,
                           onSelected: (_) {
                             if (_selectedEquipment != null) {
@@ -174,9 +196,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                           const SizedBox(width: 8),
                           FilterChip(
                             avatar: const Icon(Icons.repeat, size: 14),
-                            label: Text(
-                              _selectedExerciseType ?? 'Exercise Type',
-                            ),
+                            label: Text(typeLabel),
                             selected: _selectedExerciseType != null,
                             onSelected: (_) {
                               if (_selectedExerciseType != null) {
@@ -193,7 +213,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                           const SizedBox(width: 8),
                           ActionChip(
                             avatar: const Icon(Icons.close, size: 14),
-                            label: const Text('Clear Filters'),
+                            label: Text(l10n.commonClearFilters),
                             onPressed: () => setState(() {
                               _selectedEquipment = null;
                               _selectedExerciseType = null;
@@ -235,7 +255,9 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                     }).toList();
 
                     if (filtered.isEmpty) {
-                      return const Center(child: Text('No exercises found'));
+                      return Center(
+                        child: Text(l10n.exerciseLibraryNoExercisesFound),
+                      );
                     }
 
                     return ListView.builder(
@@ -250,8 +272,24 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                         final displayName = ExerciseDisplayHelper.getName(
                           ex,
                           catalog: catalog,
-                          locale: 'en',
+                          locale: locale,
                         );
+
+                        final muscleText =
+                            ExerciseDisplayHelper.getLocalizedMuscle(
+                              ex.muscleGroup,
+                              locale: locale,
+                            );
+                        final equipText =
+                            ExerciseDisplayHelper.getLocalizedEquipment(
+                              ex.equipment,
+                              locale: locale,
+                            );
+                        final typeText =
+                            ExerciseDisplayHelper.getLocalizedExerciseType(
+                              ex.exerciseType,
+                              locale: locale,
+                            );
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 8),
@@ -290,7 +328,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
-                                      'CUSTOM',
+                                      l10n.exerciseLibraryCustomBadge,
                                       style: TextStyle(
                                         fontSize: 10,
                                         color: theme.colorScheme.primary,
@@ -303,7 +341,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                             subtitle: Padding(
                               padding: const EdgeInsets.only(top: 4.0),
                               child: Text(
-                                '${ex.muscleGroup} • ${ex.equipment} • ${ex.exerciseType}',
+                                '$muscleText • $equipText • $typeText',
                               ),
                             ),
                             trailing: Row(
@@ -315,7 +353,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                                     size: 20,
                                     color: Colors.grey,
                                   ),
-                                  tooltip: 'Exercise Details',
+                                  tooltip: l10n.exerciseDetailInstructions,
                                   onPressed: () =>
                                       ExerciseDetailScreen.show(context, ex),
                                 ),
@@ -327,7 +365,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                                     ),
                                   ),
                                   icon: const Icon(Icons.add, size: 16),
-                                  label: const Text('ADD'),
+                                  label: Text(l10n.commonAdd.toUpperCase()),
                                   onPressed: () =>
                                       Navigator.of(context).pop(ex),
                                 ),
@@ -352,6 +390,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
   }
 
   void _showEquipmentPicker(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
     showModalBottomSheet(
       context: context,
       builder: (ctx) => SafeArea(
@@ -359,7 +398,9 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
           shrinkWrap: true,
           children: AppConstants.equipmentTypes.map((eq) {
             return ListTile(
-              title: Text(eq),
+              title: Text(
+                ExerciseDisplayHelper.getLocalizedEquipment(eq, locale: locale),
+              ),
               trailing: _selectedEquipment == eq
                   ? const Icon(Icons.check)
                   : null,
@@ -375,6 +416,7 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
   }
 
   void _showTypePicker(BuildContext context, [List<String>? availableTypes]) {
+    final locale = Localizations.localeOf(context).languageCode;
     final types =
         availableTypes ??
         ['Weight & Reps', 'Bodyweight Reps', 'Duration', 'Cardio'];
@@ -385,7 +427,12 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
           shrinkWrap: true,
           children: types.map((t) {
             return ListTile(
-              title: Text(t),
+              title: Text(
+                ExerciseDisplayHelper.getLocalizedExerciseType(
+                  t,
+                  locale: locale,
+                ),
+              ),
               trailing: _selectedExerciseType == t
                   ? const Icon(Icons.check)
                   : null,

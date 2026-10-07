@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/app_providers.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class PreferencesSection extends ConsumerWidget {
   final int defaultRestTime;
@@ -21,14 +22,16 @@ class PreferencesSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final weightUnit = ref.watch(weightUnitProvider);
+    final currentLang = ref.watch(languageProvider);
     final isDark = themeMode == ThemeMode.dark;
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Preferences',
+          l10n.settingsSectionPreferences,
           style: theme.textTheme.titleSmall?.copyWith(
             color: theme.colorScheme.primary,
             fontWeight: FontWeight.bold,
@@ -40,8 +43,8 @@ class PreferencesSection extends ConsumerWidget {
             children: [
               SwitchListTile(
                 secondary: const Icon(Icons.dark_mode_outlined),
-                title: const Text('Dark Mode'),
-                subtitle: const Text('Sleek dark theme optimized for the gym'),
+                title: Text(l10n.settingsDarkModeTitle),
+                subtitle: Text(l10n.settingsDarkModeSubtitle),
                 value: isDark,
                 onChanged: (_) {
                   ref.read(themeModeProvider.notifier).toggleTheme();
@@ -50,8 +53,10 @@ class PreferencesSection extends ConsumerWidget {
               const Divider(height: 1),
               ListTile(
                 leading: const Icon(Icons.scale_outlined),
-                title: const Text('Weight Unit'),
-                subtitle: Text('Currently: ${weightUnit.toUpperCase()}'),
+                title: Text(l10n.settingsWeightUnitTitle),
+                subtitle: Text(
+                  l10n.settingsWeightUnitSubtitle(weightUnit.toUpperCase()),
+                ),
                 trailing: SegmentedButton<String>(
                   segments: const [
                     ButtonSegment(value: 'kg', label: Text('KG')),
@@ -64,10 +69,62 @@ class PreferencesSection extends ConsumerWidget {
                 ),
               ),
               const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 12.0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.language_outlined),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.settingsLanguageTitle,
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                l10n.settingsLanguageSubtitle,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.textTheme.bodySmall?.color,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: SegmentedButton<String>(
+                        segments: const [
+                          ButtonSegment(value: 'en', label: Text('English')),
+                          ButtonSegment(value: 'vi', label: Text('Tiếng Việt')),
+                        ],
+                        selected: {currentLang},
+                        onSelectionChanged: (val) {
+                          ref
+                              .read(languageProvider.notifier)
+                              .setLanguage(val.first);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
               ListTile(
                 leading: const Icon(Icons.timer_outlined),
-                title: const Text('Default Rest Timer'),
-                subtitle: Text('$defaultRestTime seconds between sets'),
+                title: Text(l10n.settingsRestTimerTitle),
+                subtitle: Text(l10n.settingsRestTimerSubtitle(defaultRestTime)),
                 trailing: DropdownButton<int>(
                   value: defaultRestTime,
                   items: const [
@@ -86,10 +143,8 @@ class PreferencesSection extends ConsumerWidget {
               const Divider(height: 1),
               SwitchListTile(
                 secondary: const Icon(Icons.auto_fix_high_outlined),
-                title: const Text('Auto-fill Previous Performance'),
-                subtitle: const Text(
-                  'When ON, pre-fills weight/reps from last workout. When OFF, sets start empty (reference only).',
-                ),
+                title: Text(l10n.settingsAutoFillTitle),
+                subtitle: Text(l10n.settingsAutoFillSubtitle),
                 value: autoFillPrevious,
                 onChanged: onAutoFillChanged,
               ),

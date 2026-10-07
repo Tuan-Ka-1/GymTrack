@@ -7,6 +7,7 @@ import '../../../core/providers/app_providers.dart';
 import '../../../core/widgets/confirm_dialog.dart';
 import '../../../data/database/app_database.dart';
 import '../../../domain/repositories/exercise_repository.dart';
+import '../../../l10n/app_localizations.dart';
 import '../domain/exercise_catalog.dart';
 import '../domain/exercise_display_helper.dart';
 import 'exercise_detail_screen.dart';
@@ -33,19 +34,23 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
     final catalog = catalogAsync.value;
     final repo = ref.watch(exerciseRepositoryProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Exercise Library'),
+        title: Text(l10n.exerciseLibraryTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            tooltip: 'Add Custom Exercise',
+            tooltip: l10n.exerciseLibraryAddTooltip,
             onPressed: () => context.push('/create-exercise'),
           ),
           IconButton(
             icon: Icon(_showArchived ? Icons.archive : Icons.archive_outlined),
-            tooltip: _showArchived ? 'Hide Archived' : 'Show Archived',
+            tooltip: _showArchived
+                ? l10n.exerciseLibraryHideArchivedTooltip
+                : l10n.exerciseLibraryShowArchivedTooltip,
             onPressed: () => setState(() => _showArchived = !_showArchived),
           ),
         ],
@@ -57,7 +62,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search by name, Vietnamese, keyword...',
+                hintText: l10n.exerciseLibrarySearchHint,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -77,17 +82,22 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
             child: Row(
               children: [
                 FilterChip(
-                  label: const Text('All Muscles'),
+                  label: Text(l10n.exerciseLibraryAllMuscles),
                   selected: _selectedMuscle == null,
                   onSelected: (_) => setState(() => _selectedMuscle = null),
                 ),
                 const SizedBox(width: 8),
                 ...AppConstants.muscleGroups.map((muscle) {
                   final isSelected = _selectedMuscle == muscle;
+                  final localizedMuscle =
+                      ExerciseDisplayHelper.getLocalizedMuscle(
+                        muscle,
+                        locale: locale,
+                      );
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
-                      label: Text(muscle),
+                      label: Text(localizedMuscle),
                       selected: isSelected,
                       onSelected: (selected) {
                         setState(
@@ -111,6 +121,20 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                   .toList();
               final showTypeFilter = availableTypes.length > 1;
 
+              final equipmentLabel = _selectedEquipment != null
+                  ? ExerciseDisplayHelper.getLocalizedEquipment(
+                      _selectedEquipment!,
+                      locale: locale,
+                    )
+                  : l10n.exerciseLibraryEquipmentFilter;
+
+              final typeLabel = _selectedExerciseType != null
+                  ? ExerciseDisplayHelper.getLocalizedExerciseType(
+                      _selectedExerciseType!,
+                      locale: locale,
+                    )
+                  : l10n.exerciseLibraryTypeFilter;
+
               return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(
@@ -121,7 +145,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                   children: [
                     FilterChip(
                       avatar: const Icon(Icons.build_outlined, size: 14),
-                      label: Text(_selectedEquipment ?? 'Equipment'),
+                      label: Text(equipmentLabel),
                       selected: _selectedEquipment != null,
                       onSelected: (_) {
                         if (_selectedEquipment != null) {
@@ -135,7 +159,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                       const SizedBox(width: 8),
                       FilterChip(
                         avatar: const Icon(Icons.repeat, size: 14),
-                        label: Text(_selectedExerciseType ?? 'Exercise Type'),
+                        label: Text(typeLabel),
                         selected: _selectedExerciseType != null,
                         onSelected: (_) {
                           if (_selectedExerciseType != null) {
@@ -151,7 +175,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                       const SizedBox(width: 8),
                       ActionChip(
                         avatar: const Icon(Icons.close, size: 14),
-                        label: const Text('Clear Filters'),
+                        label: Text(l10n.commonClearFilters),
                         onPressed: () => setState(() {
                           _selectedEquipment = null;
                           _selectedExerciseType = null;
@@ -167,8 +191,15 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
           const Divider(height: 16),
           Expanded(
             child: _showArchived
-                ? _buildArchivedList(repo, theme, catalog)
-                : _buildActiveList(exercisesAsync, repo, theme, catalog),
+                ? _buildArchivedList(repo, theme, catalog, locale, l10n)
+                : _buildActiveList(
+                    exercisesAsync,
+                    repo,
+                    theme,
+                    catalog,
+                    locale,
+                    l10n,
+                  ),
           ),
         ],
       ),
@@ -176,6 +207,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
   }
 
   void _showEquipmentPicker(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
     showModalBottomSheet(
       context: context,
       builder: (ctx) => SafeArea(
@@ -183,7 +215,9 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
           shrinkWrap: true,
           children: AppConstants.equipmentTypes.map((eq) {
             return ListTile(
-              title: Text(eq),
+              title: Text(
+                ExerciseDisplayHelper.getLocalizedEquipment(eq, locale: locale),
+              ),
               trailing: _selectedEquipment == eq
                   ? const Icon(Icons.check)
                   : null,
@@ -199,6 +233,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
   }
 
   void _showTypePicker(BuildContext context, [List<String>? availableTypes]) {
+    final locale = Localizations.localeOf(context).languageCode;
     final types =
         availableTypes ??
         ['Weight & Reps', 'Bodyweight Reps', 'Duration', 'Cardio'];
@@ -209,7 +244,12 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
           shrinkWrap: true,
           children: types.map((t) {
             return ListTile(
-              title: Text(t),
+              title: Text(
+                ExerciseDisplayHelper.getLocalizedExerciseType(
+                  t,
+                  locale: locale,
+                ),
+              ),
               trailing: _selectedExerciseType == t
                   ? const Icon(Icons.check)
                   : null,
@@ -229,6 +269,8 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
     ExerciseRepository repo,
     ThemeData theme,
     ExerciseCatalog? catalog,
+    String locale,
+    AppLocalizations l10n,
   ) {
     return exercisesAsync.when(
       data: (exercises) {
@@ -253,7 +295,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
         }).toList();
 
         if (filtered.isEmpty) {
-          return const Center(child: Text('No exercises found'));
+          return Center(child: Text(l10n.exerciseLibraryNoExercisesFound));
         }
 
         return ListView.builder(
@@ -264,8 +306,22 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
             final displayName = ExerciseDisplayHelper.getName(
               ex,
               catalog: catalog,
-              locale: 'en',
+              locale: locale,
             );
+
+            final muscleText = ExerciseDisplayHelper.getLocalizedMuscle(
+              ex.muscleGroup,
+              locale: locale,
+            );
+            final equipText = ExerciseDisplayHelper.getLocalizedEquipment(
+              ex.equipment,
+              locale: locale,
+            );
+            final typeText = ExerciseDisplayHelper.getLocalizedExerciseType(
+              ex.exerciseType,
+              locale: locale,
+            );
+
             return Card(
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
@@ -301,7 +357,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          'CUSTOM',
+                          l10n.exerciseLibraryCustomBadge,
                           style: TextStyle(
                             fontSize: 10,
                             color: theme.colorScheme.primary,
@@ -313,9 +369,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                 ),
                 subtitle: Padding(
                   padding: const EdgeInsets.only(top: 4.0),
-                  child: Text(
-                    '${ex.muscleGroup} • ${ex.equipment} • ${ex.exerciseType}',
-                  ),
+                  child: Text('$muscleText • $equipText • $typeText'),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -323,7 +377,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                     if (ex.isCustom) ...[
                       IconButton(
                         icon: const Icon(Icons.edit_outlined, size: 20),
-                        tooltip: 'Edit Custom Exercise',
+                        tooltip: l10n.exerciseLibraryEditTooltip,
                         onPressed: () =>
                             context.push('/create-exercise', extra: ex),
                       ),
@@ -333,14 +387,15 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                           size: 20,
                           color: Colors.grey,
                         ),
-                        tooltip: 'Archive',
+                        tooltip: l10n.exerciseLibraryArchiveTooltip,
                         onPressed: () async {
                           final confirmed = await ConfirmDialog.show(
                             context,
-                            title: 'Archive Exercise?',
-                            message:
-                                'This will hide "${ex.name}" from the library and pickers.\nYour workout history for this exercise will be preserved.',
-                            confirmText: 'Archive',
+                            title: l10n.exerciseLibraryArchiveDialogTitle,
+                            message: l10n.exerciseLibraryArchiveDialogMessage(
+                              ex.name,
+                            ),
+                            confirmText: l10n.commonArchive,
                             isDestructive: true,
                           );
                           if (confirmed) {
@@ -367,6 +422,8 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
     ExerciseRepository repo,
     ThemeData theme,
     ExerciseCatalog? catalog,
+    String locale,
+    AppLocalizations l10n,
   ) {
     return FutureBuilder<List<ExerciseEntry>>(
       future: repo.getAllExercises(includeArchived: true),
@@ -377,7 +434,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
         final allExercises = snapshot.data ?? [];
         final archived = allExercises.where((e) => e.isArchived).toList();
         if (archived.isEmpty) {
-          return const Center(child: Text('No archived exercises'));
+          return Center(child: Text(l10n.exerciseLibraryNoArchived));
         }
         return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -387,8 +444,17 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
             final displayName = ExerciseDisplayHelper.getName(
               ex,
               catalog: catalog,
-              locale: 'en',
+              locale: locale,
             );
+            final muscleText = ExerciseDisplayHelper.getLocalizedMuscle(
+              ex.muscleGroup,
+              locale: locale,
+            );
+            final equipText = ExerciseDisplayHelper.getLocalizedEquipment(
+              ex.equipment,
+              locale: locale,
+            );
+
             return Card(
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
@@ -416,9 +482,9 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                         color: Colors.grey.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text(
-                        'ARCHIVED',
-                        style: TextStyle(
+                      child: Text(
+                        l10n.exerciseLibraryArchivedBadge,
+                        style: const TextStyle(
                           fontSize: 10,
                           color: Colors.grey,
                           fontWeight: FontWeight.bold,
@@ -428,7 +494,7 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                   ],
                 ),
                 subtitle: Text(
-                  '${ex.muscleGroup} • ${ex.equipment}',
+                  '$muscleText • $equipText',
                   style: const TextStyle(color: Colors.grey),
                 ),
                 trailing: IconButton(
@@ -437,13 +503,15 @@ class _ExerciseLibraryScreenState extends ConsumerState<ExerciseLibraryScreen> {
                     size: 20,
                     color: Colors.green,
                   ),
-                  tooltip: 'Restore',
+                  tooltip: l10n.exerciseLibraryRestoreTooltip,
                   onPressed: () async {
                     final confirmed = await ConfirmDialog.show(
                       context,
-                      title: 'Restore Exercise?',
-                      message:
-                          'Restore "${ex.name}" to the library and pickers?',
+                      title: l10n.exerciseLibraryRestoreDialogTitle,
+                      message: l10n.exerciseLibraryRestoreDialogMessage(
+                        ex.name,
+                      ),
+                      confirmText: l10n.commonRestore,
                       isDestructive: false,
                     );
                     if (confirmed) {

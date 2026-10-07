@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 class ConfirmDialog extends StatelessWidget {
   final String title;
   final String message;
-  final String confirmText;
-  final String cancelText;
+  final String? confirmText;
+  final String? cancelText;
   final Color? confirmColor;
   final bool isDestructive;
 
@@ -12,8 +14,8 @@ class ConfirmDialog extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
-    this.confirmText = 'Confirm',
-    this.cancelText = 'Cancel',
+    this.confirmText,
+    this.cancelText,
     this.confirmColor,
     this.isDestructive = false,
   });
@@ -22,8 +24,8 @@ class ConfirmDialog extends StatelessWidget {
     BuildContext context, {
     required String title,
     required String message,
-    String confirmText = 'Confirm',
-    String cancelText = 'Cancel',
+    String? confirmText,
+    String? cancelText,
     bool isDestructive = false,
   }) async {
     final result = await showDialog<bool>(
@@ -42,6 +44,9 @@ class ConfirmDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final effectiveCancel = cancelText ?? l10n?.commonCancel ?? 'Cancel';
+    final effectiveConfirm = confirmText ?? l10n?.commonConfirm ?? 'Confirm';
     final color =
         confirmColor ??
         (isDestructive ? theme.colorScheme.error : theme.colorScheme.primary);
@@ -53,7 +58,10 @@ class ConfirmDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: Text(cancelText, style: const TextStyle(color: Colors.grey)),
+          child: Text(
+            effectiveCancel,
+            style: const TextStyle(color: Colors.grey),
+          ),
         ),
         FilledButton(
           style: FilledButton.styleFrom(
@@ -61,7 +69,7 @@ class ConfirmDialog extends StatelessWidget {
             foregroundColor: isDestructive ? Colors.white : Colors.black,
           ),
           onPressed: () => Navigator.of(context).pop(true),
-          child: Text(confirmText),
+          child: Text(effectiveConfirm),
         ),
       ],
     );

@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../data/database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
+import '../domain/exercise_display_helper.dart';
 
 class CreateExerciseScreen extends ConsumerStatefulWidget {
   final ExerciseEntry? exerciseToEdit;
@@ -103,10 +105,16 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.exerciseToEdit != null;
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Exercise' : 'New Custom Exercise'),
+        title: Text(
+          isEditing
+              ? l10n.createExerciseTitleEdit
+              : l10n.createExerciseTitleNew,
+        ),
       ),
       body: Form(
         key: _formKey,
@@ -115,13 +123,13 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Exercise Name *',
-                hintText: 'e.g. Bulgarian Split Squat',
+              decoration: InputDecoration(
+                labelText: l10n.createExerciseNameLabel,
+                hintText: l10n.createExerciseNameHint,
               ),
               validator: (val) {
                 if (val == null || val.trim().isEmpty) {
-                  return 'Please enter exercise name';
+                  return l10n.createExerciseNameRequired;
                 }
                 return null;
               },
@@ -129,9 +137,21 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _selectedMuscle,
-              decoration: const InputDecoration(labelText: 'Muscle Group *'),
+              decoration: InputDecoration(
+                labelText: l10n.createExerciseMuscleLabel,
+              ),
               items: AppConstants.muscleGroups
-                  .map((m) => DropdownMenuItem(value: m, child: Text(m)))
+                  .map(
+                    (m) => DropdownMenuItem(
+                      value: m,
+                      child: Text(
+                        ExerciseDisplayHelper.getLocalizedMuscle(
+                          m,
+                          locale: locale,
+                        ),
+                      ),
+                    ),
+                  )
                   .toList(),
               onChanged: (val) {
                 if (val != null) setState(() => _selectedMuscle = val);
@@ -140,9 +160,21 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _selectedEquipment,
-              decoration: const InputDecoration(labelText: 'Equipment *'),
+              decoration: InputDecoration(
+                labelText: l10n.createExerciseEquipmentLabel,
+              ),
               items: AppConstants.equipmentTypes
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                  .map(
+                    (e) => DropdownMenuItem(
+                      value: e,
+                      child: Text(
+                        ExerciseDisplayHelper.getLocalizedEquipment(
+                          e,
+                          locale: locale,
+                        ),
+                      ),
+                    ),
+                  )
                   .toList(),
               onChanged: (val) {
                 if (val != null) setState(() => _selectedEquipment = val);
@@ -152,28 +184,27 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
             TextFormField(
               controller: _descController,
               maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: 'Description (optional)',
-                hintText: 'Short summary of the exercise...',
+              decoration: InputDecoration(
+                labelText: l10n.createExerciseDescLabel,
+                hintText: l10n.createExerciseDescHint,
               ),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _instructionsController,
               maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Instructions (optional)',
-                hintText:
-                    'Step 1: Set up...\nStep 2: Lower...\nStep 3: Press...',
+              decoration: InputDecoration(
+                labelText: l10n.createExerciseInstructionsLabel,
+                hintText: l10n.createExerciseInstructionsHint,
               ),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _tipsController,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Form Tips & Cues (optional)',
-                hintText: 'Cues, common mistakes to avoid...',
+              decoration: InputDecoration(
+                labelText: l10n.createExerciseTipsLabel,
+                hintText: l10n.createExerciseTipsHint,
               ),
             ),
             const SizedBox(height: 32),
@@ -181,7 +212,11 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: _saveExercise,
-                child: Text(isEditing ? 'UPDATE EXERCISE' : 'SAVE EXERCISE'),
+                child: Text(
+                  isEditing
+                      ? l10n.createExerciseUpdateButton
+                      : l10n.createExerciseSaveButton,
+                ),
               ),
             ),
           ],

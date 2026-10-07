@@ -1,0 +1,454 @@
+{
+  "@@locale": "en",
+  "appName": "GymTrack",
+
+  "navHome": "Home",
+  "navWorkout": "Workout",
+  "navHistory": "History",
+  "navProgress": "Progress",
+  "navSettings": "Settings",
+
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonAdd": "Add",
+  "commonCreate": "Create",
+  "commonDelete": "Delete",
+  "commonEdit": "Edit",
+  "commonConfirm": "Confirm",
+  "commonTest": "Test",
+  "commonClearFilters": "Clear Filters",
+  "commonDiscard": "Discard",
+  "commonFinish": "Finish",
+  "commonRestore": "Restore",
+  "commonArchive": "Archive",
+  "commonError": "Error: {error}",
+  "@commonError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+
+  "homeGreetingMorning": "Good Morning ☀️",
+  "homeGreetingAfternoon": "Good Afternoon ⚡",
+  "homeGreetingEvening": "Good Evening 🌙",
+  "homeTooltipBodyWeight": "Log Body Weight",
+  "homeTooltipExerciseLibrary": "Exercise Library",
+  "homeTodayBadge": "TODAY",
+  "homeQuickWorkoutRoutine": "Quick Workout Routine",
+  "homeNoRoutineDesc": "No routine set. Tap start to begin an open session.",
+  "homeStartWorkout": "START WORKOUT",
+  "homeBodyWeight": "Body Weight",
+  "homeTapToLog": "Tap to log",
+  "homeLastSession": "Last Session",
+  "homeNoWorkoutsYet": "No workouts yet",
+  "homeRecentPrHighlights": "Recent PR Highlights 🏆",
+  "homeViewAll": "View All",
+  "homeEmptyPrDesc": "Establish your personal records by logging exercises!",
+  "homePrAchievedOn": "Achieved on {date}",
+  "@homePrAchievedOn": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+
+  "workoutPlansTitle": "Workout Plans",
+  "workoutPlansNewTooltip": "New Plan",
+  "workoutPlansEmptyTitle": "No Workout Plans Yet",
+  "workoutPlansEmptySubtitle": "Create your first workout plan or start with a pre-built split.",
+  "workoutPlansCreateButton": "Create Plan",
+  "workoutPlansDeleteTitle": "Delete Plan?",
+  "workoutPlansDeleteMessage": "Are you sure you want to delete \"{name}\"? Past workout history will remain intact.",
+  "@workoutPlansDeleteMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "workoutPlansDeleteAction": "Delete Plan",
+  "workoutPlansDayCount": "{count, plural, =0{0 days added} =1{1 day added} other{{count} days added}}",
+  "@workoutPlansDayCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "dialogCreatePlanTitle": "Create Workout Plan",
+  "dialogPlanNameLabel": "Plan Name (e.g., Upper Lower, PPL)",
+  "dialogPlanDescLabel": "Description (optional)",
+  "dialogAddWorkoutDayTitle": "Add Workout Day",
+  "dialogWorkoutDayHint": "Day Name (e.g., Push, Chest & Back)",
+  "dialogRenamePlanTitle": "Rename Plan",
+  "dialogRenamePlanHint": "Plan name",
+  "dialogRenameDayTitle": "Rename Day",
+  "dialogRenameDayHint": "Day name (e.g., Push, Pull)",
+  "dialogEditExerciseParamsTitle": "Edit Exercise Settings",
+  "dialogTargetSetsLabel": "Target Sets",
+  "dialogMinRepsLabel": "Min Reps",
+  "dialogMaxRepsLabel": "Max Reps",
+  "dialogRestSecondsLabel": "Rest (seconds)",
+
+  "planDetailRenameTooltip": "Rename Plan",
+  "planDetailAddDay": "Add Day",
+  "planDetailNoDaysTitle": "No workout days yet",
+  "planDetailNoDaysSubtitle": "Add days like \"Push\", \"Pull\", or \"Legs\" to organize exercises.",
+  "planDetailAddDayButton": "Add Workout Day",
+  "planDetailExerciseSubtitle": "{sets} sets • {minReps}-{maxReps} reps • {restSeconds}s rest",
+  "@planDetailExerciseSubtitle": {
+    "placeholders": {
+      "sets": { "type": "int" },
+      "minReps": { "type": "int" },
+      "maxReps": { "type": "int" },
+      "restSeconds": { "type": "int" }
+    }
+  },
+  "planDetailEditTooltip": "Edit Settings",
+  "planDetailRemoveTooltip": "Remove",
+
+  "dayCardRenameTooltip": "Rename Day",
+  "dayCardStartButton": "START",
+  "dayCardDeleteTitle": "Delete Day?",
+  "dayCardDeleteMessage": "Are you sure you want to delete \"{name}\" and its exercises?",
+  "@dayCardDeleteMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "dayCardAddExerciseEmpty": "Add Exercise to this day",
+  "dayCardAddExerciseButton": "+ Add Exercise",
+
+  "activeWorkoutTitle": "Active Workout",
+  "activeWorkoutFinishButton": "FINISH",
+  "activeWorkoutAddExercise": "+ ADD EXERCISE",
+  "activeWorkoutNotesTitle": "Session Notes",
+  "activeWorkoutNotesHint": "How was the workout? E.g., felt strong today...",
+  "activeWorkoutFinishDialogTitle": "Finish Workout?",
+  "activeWorkoutFinishDialogMessage": "Are you sure you want to finish and save this workout session?",
+  "activeWorkoutFinishDialogConfirm": "Finish",
+  "activeWorkoutDiscardDialogTitle": "Discard Workout?",
+  "activeWorkoutDiscardDialogMessage": "Are you sure you want to cancel and delete this workout session? Data will not be saved.",
+  "activeWorkoutDiscardDialogConfirm": "Discard",
+  "activeWorkoutSetHeader": "SET",
+  "activeWorkoutWeightHeader": "WEIGHT ({unit})",
+  "@activeWorkoutWeightHeader": {
+    "placeholders": {
+      "unit": { "type": "String" }
+    }
+  },
+  "activeWorkoutRepsHeader": "REPS",
+  "activeWorkoutAddSet": "+ ADD SET",
+  "activeWorkoutPrevious": "Previous: {summary}",
+  "@activeWorkoutPrevious": {
+    "placeholders": {
+      "summary": { "type": "String" }
+    }
+  },
+
+  "restTimerTitle": "REST TIMER",
+  "restTimerAdd30s": "+30s",
+  "restTimerNotificationTitle": "Rest finished! 🔔",
+  "restTimerNotificationBodyWithExercise": "Time for the next set of {exercise}",
+  "@restTimerNotificationBodyWithExercise": {
+    "placeholders": {
+      "exercise": { "type": "String" }
+    }
+  },
+  "restTimerNotificationBodyDefault": "Time for the next set!",
+
+  "summaryTitle": "Workout Completed! 💪",
+  "summarySessionNotFound": "Session not found",
+  "summaryDuration": "Duration",
+  "summaryExercises": "Exercises",
+  "summarySets": "Sets",
+  "summaryVolume": "Total Volume",
+  "summaryNotePrefix": "Note: {note}",
+  "@summaryNotePrefix": {
+    "placeholders": {
+      "note": { "type": "String" }
+    }
+  },
+  "summaryBackToHome": "BACK TO HOME",
+
+  "historyTitle": "Workout History",
+  "historyEmptyTitle": "No Workouts Completed Yet",
+  "historyEmptySubtitle": "Start a workout session and log your sets. Your history and volume progress will appear here.",
+  "historyExercisesCount": "{count, plural, =1{1 exercise} other{{count} exercises}}",
+  "@historyExercisesCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "historyDetailTitle": "Workout Details",
+  "historyDetailDeleteTooltip": "Delete Log",
+  "historyDetailDeleteTitle": "Delete Workout Log?",
+  "historyDetailDeleteMessage": "Are you sure you want to permanently delete this workout from history?",
+  "historyDetailSessionNotFound": "Session not found",
+  "historyDetailExercisesAndSets": "Exercises & Sets",
+  "historyDetailNoSets": "No sets recorded",
+  "historyDetailSetLabel": "Set {setNumber}:",
+  "@historyDetailSetLabel": {
+    "placeholders": {
+      "setNumber": { "type": "int" }
+    }
+  },
+  "historyDetailSetSummary": "{weight} × {reps} reps",
+  "@historyDetailSetSummary": {
+    "placeholders": {
+      "weight": { "type": "String" },
+      "reps": { "type": "int" }
+    }
+  },
+
+  "progressTitle": "Progress & Analytics",
+  "progressTotalWorkouts": "Total Workouts",
+  "progressTotalVolume": "Total Volume",
+  "progressExerciseAnalytics": "Exercise Analytics",
+  "progressVolumeMetric": "Volume ({unit})",
+  "@progressVolumeMetric": {
+    "placeholders": {
+      "unit": { "type": "String" }
+    }
+  },
+  "progressMaxWeightMetric": "Max Wt ({unit})",
+  "@progressMaxWeightMetric": {
+    "placeholders": {
+      "unit": { "type": "String" }
+    }
+  },
+  "progressEstimated1RMMetric": "Epley 1RM ({unit})",
+  "@progressEstimated1RMMetric": {
+    "placeholders": {
+      "unit": { "type": "String" }
+    }
+  },
+  "progressSelectExercise": "Select Exercise",
+  "progress1RM": "1RM",
+  "progressMaxWeight": "Max Wt",
+  "progressVolume": "Volume",
+  "progressNoCompletedSets": "No completed sets recorded for this exercise yet.\nComplete workouts to see your progress curve!",
+  "progressPrTitle": "Personal Records (PR)",
+  "progressPrEmpty": "Complete workout sets to establish your PRs!",
+  "progressPrRow": "{maxWeight} (Est 1RM: {est1RM})",
+  "@progressPrRow": {
+    "placeholders": {
+      "maxWeight": { "type": "String" },
+      "est1RM": { "type": "String" }
+    }
+  },
+
+  "bodyTrackingTitle": "Body Tracking",
+  "bodyTrackingLogTooltip": "Log Measurement",
+  "bodyTrackingEmptyTitle": "No Body Measurements",
+  "bodyTrackingEmptySubtitle": "Track your body weight, body fat percentage, and circumference measurements over time.",
+  "bodyTrackingLogWeightButton": "Log Weight",
+  "bodyTrackingWeightTrend": "Weight Trend",
+  "bodyTrackingLatestPrefix": "Latest: {weight}",
+  "@bodyTrackingLatestPrefix": {
+    "placeholders": {
+      "weight": { "type": "String" }
+    }
+  },
+  "bodyTrackingHistoryTitle": "Measurement History",
+  "bodyTrackingDeleteDialogTitle": "Delete Entry?",
+  "bodyTrackingDeleteDialogMessage": "Remove this measurement entry?",
+  "bodyTrackingDialogTitle": "Log Body Measurement",
+  "bodyTrackingWeightLabel": "Body Weight ({unit}) *",
+  "@bodyTrackingWeightLabel": {
+    "placeholders": {
+      "unit": { "type": "String" }
+    }
+  },
+  "bodyTrackingWeightHintLb": "e.g. 160.0",
+  "bodyTrackingWeightHintKg": "e.g. 72.5",
+  "bodyTrackingBodyFatLabel": "Body Fat %",
+  "bodyTrackingWaistLabel": "Waist (cm)",
+  "bodyTrackingChestLabel": "Chest (cm)",
+  "bodyTrackingArmLabel": "Arm (cm)",
+  "bodyTrackingThighLabel": "Thigh (cm)",
+  "bodyTrackingNotesLabel": "Notes (optional)",
+  "bodyTrackingNotesHint": "Morning weight, fasting...",
+  "bodyTrackingSaveButton": "SAVE MEASUREMENT",
+  "bodyTrackingSubtitleFat": "Fat: {fat}%",
+  "@bodyTrackingSubtitleFat": {
+    "placeholders": {
+      "fat": { "type": "String" }
+    }
+  },
+  "bodyTrackingSubtitleWaist": "Waist: {waist}cm",
+  "@bodyTrackingSubtitleWaist": {
+    "placeholders": {
+      "waist": { "type": "String" }
+    }
+  },
+
+  "exerciseLibraryTitle": "Exercise Library",
+  "exerciseLibraryAddTooltip": "Add Custom Exercise",
+  "exerciseLibraryHideArchivedTooltip": "Hide Archived",
+  "exerciseLibraryShowArchivedTooltip": "Show Archived",
+  "exerciseLibrarySearchHint": "Search by name, Vietnamese, keyword...",
+  "exerciseLibraryAllMuscles": "All Muscles",
+  "exerciseLibraryEquipmentFilter": "Equipment",
+  "exerciseLibraryTypeFilter": "Exercise Type",
+  "exerciseLibraryNoExercisesFound": "No exercises found",
+  "exerciseLibraryCustomBadge": "CUSTOM",
+  "exerciseLibraryArchivedBadge": "ARCHIVED",
+  "exerciseLibraryEditTooltip": "Edit Custom Exercise",
+  "exerciseLibraryArchiveTooltip": "Archive",
+  "exerciseLibraryArchiveDialogTitle": "Archive Exercise?",
+  "exerciseLibraryArchiveDialogMessage": "This will hide \"{name}\" from the library and pickers.\nYour workout history for this exercise will be preserved.",
+  "@exerciseLibraryArchiveDialogMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "exerciseLibraryRestoreTooltip": "Restore",
+  "exerciseLibraryRestoreDialogTitle": "Restore Exercise?",
+  "exerciseLibraryRestoreDialogMessage": "Restore \"{name}\" to the library and pickers?",
+  "@exerciseLibraryRestoreDialogMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "exerciseLibraryNoArchived": "No archived exercises",
+
+  "exerciseDetailPrimaryMuscle": "Primary: {muscle}",
+  "@exerciseDetailPrimaryMuscle": {
+    "placeholders": {
+      "muscle": { "type": "String" }
+    }
+  },
+  "exerciseDetailSecondaryMuscles": "Secondary Muscles",
+  "exerciseDetailDescription": "Description",
+  "exerciseDetailInstructions": "Instructions",
+  "exerciseDetailTips": "Pro Tips & Cues",
+  "exerciseDetailCustomBadge": "Custom",
+
+  "createExerciseTitleNew": "New Custom Exercise",
+  "createExerciseTitleEdit": "Edit Exercise",
+  "createExerciseNameLabel": "Exercise Name *",
+  "createExerciseNameHint": "e.g. Bulgarian Split Squat",
+  "createExerciseNameRequired": "Please enter exercise name",
+  "createExerciseMuscleLabel": "Muscle Group *",
+  "createExerciseEquipmentLabel": "Equipment *",
+  "createExerciseDescLabel": "Description (optional)",
+  "createExerciseDescHint": "Short summary of the exercise...",
+  "createExerciseInstructionsLabel": "Instructions (optional)",
+  "createExerciseInstructionsHint": "Step 1: Set up...\nStep 2: Lower...\nStep 3: Press...",
+  "createExerciseTipsLabel": "Form Tips & Cues (optional)",
+  "createExerciseTipsHint": "Cues, common mistakes to avoid...",
+  "createExerciseSaveButton": "SAVE EXERCISE",
+  "createExerciseUpdateButton": "UPDATE EXERCISE",
+
+  "exercisePickerTitle": "Select Exercise",
+
+  "settingsTitle": "Settings",
+  "settingsSectionPreferences": "Preferences",
+  "settingsDarkModeTitle": "Dark Mode",
+  "settingsDarkModeSubtitle": "Sleek dark theme optimized for the gym",
+  "settingsWeightUnitTitle": "Weight Unit",
+  "settingsWeightUnitSubtitle": "Currently: {unit}",
+  "@settingsWeightUnitSubtitle": {
+    "placeholders": {
+      "unit": { "type": "String" }
+    }
+  },
+  "settingsRestTimerTitle": "Default Rest Timer",
+  "settingsRestTimerSubtitle": "{seconds} seconds between sets",
+  "@settingsRestTimerSubtitle": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "settingsAutoFillTitle": "Auto-fill Previous Performance",
+  "settingsAutoFillSubtitle": "When ON, pre-fills weight/reps from last workout. When OFF, sets start empty (reference only).",
+  "settingsLanguageTitle": "Language",
+  "settingsLanguageSubtitle": "Choose application language",
+  "settingsSectionReminders": "Workout Reminders",
+  "settingsReminderSwitchTitle": "Daily / Scheduled Reminder",
+  "settingsReminderSwitchSubtitle": "Local notification to remind you to workout",
+  "settingsReminderTimeTitle": "Reminder Time",
+  "settingsReminderDaysTitle": "Reminder Days",
+  "settingsReminderTestTitle": "Test Notification",
+  "settingsReminderTestSubtitle": "Sends an instant local notification",
+  "settingsReminderTestSnackBar": "Notification triggered!",
+  "settingsReminderNotificationTitle": "Time to workout 💪",
+  "settingsReminderNotificationBody": "Your scheduled workout is waiting!",
+  "settingsReminderNotificationBodyInstant": "Don't skip today's session! Consistency is key.",
+  "settingsSectionBackup": "Backup & Data",
+  "settingsExportTitle": "Export Backup (JSON)",
+  "settingsExportSubtitle": "Export all workouts, routines, and measurements",
+  "settingsImportTitle": "Import Backup",
+  "settingsImportSubtitle": "Restore data from JSON backup",
+  "settingsDeleteAllTitle": "Delete All Data",
+  "settingsDeleteAllSubtitle": "Erase all local data with confirmation",
+  "settingsSectionAbout": "About",
+  "settingsAboutSubtitle": "Version 1.0.0 • 100% Local & Offline",
+  "settingsAboutLegalese": "Local-first offline fitness workout tracker.\nBuilt with Flutter, Drift & SQLite.",
+  "settingsExportDialogTitle": "Export Backup",
+  "settingsExportDialogMessage": "Backup data generated successfully! You can copy to clipboard or share via device.",
+  "settingsExportCopyButton": "Copy to Clipboard",
+  "settingsExportShareButton": "Share File",
+  "settingsExportCopiedSnackBar": "Backup JSON copied to clipboard!",
+  "settingsImportDialogTitle": "Import Backup",
+  "settingsImportDialogMessage": "Paste your exported JSON backup string below:",
+  "settingsImportDialogHint": "Paste JSON content here...",
+  "settingsImportSuccessSnackBar": "Database restored successfully!",
+  "settingsImportFailedSnackBar": "Failed to import backup: {error}",
+  "@settingsImportFailedSnackBar": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "settingsDeleteAllDialogTitle": "Delete All Data?",
+  "settingsDeleteAllDialogMessage": "This will completely erase all workout history, custom exercises, routines, and body measurements. This action CANNOT be undone.",
+  "settingsDeleteAllDialogConfirm": "DELETE EVERYTHING",
+  "settingsDeleteAllSuccessSnackBar": "All data has been reset to defaults.",
+
+  "dayMon": "Monday",
+  "dayTue": "Tuesday",
+  "dayWed": "Wednesday",
+  "dayThu": "Thursday",
+  "dayFri": "Friday",
+  "daySat": "Saturday",
+  "daySun": "Sunday",
+  "dayMonShort": "Mon",
+  "dayTueShort": "Tue",
+  "dayWedShort": "Wed",
+  "dayThuShort": "Thu",
+  "dayFriShort": "Fri",
+  "daySatShort": "Sat",
+  "daySunShort": "Sun",
+
+  "muscleChest": "Chest",
+  "muscleBack": "Back",
+  "muscleShoulders": "Shoulders",
+  "muscleLegs": "Legs",
+  "muscleBiceps": "Biceps",
+  "muscleTriceps": "Triceps",
+  "muscleCore": "Core",
+  "muscleFullBody": "Full Body",
+  "muscleCardio": "Cardio",
+  "muscleQuads": "Quads",
+  "muscleHamstrings": "Hamstrings",
+  "muscleCalves": "Calves",
+  "muscleGlutes": "Glutes",
+  "muscleLats": "Lats",
+  "muscleTraps": "Traps",
+  "muscleForearms": "Forearms",
+
+  "equipmentBarbell": "Barbell",
+  "equipmentDumbbell": "Dumbbell",
+  "equipmentMachine": "Machine",
+  "equipmentCable": "Cable",
+  "equipmentBodyweight": "Bodyweight",
+  "equipmentKettlebell": "Kettlebell",
+  "equipmentOther": "Other",
+
+  "typeWeightReps": "Weight & Reps",
+  "typeBodyweightReps": "Bodyweight Reps",
+  "typeDuration": "Duration",
+  "typeCardio": "Cardio",
+
+  "validationErrorRequired": "Please enter a value",
+  "validationErrorInvalidNumber": "Invalid number",
+  "validationErrorNegative": "Must be >= 0",
+  "validationErrorTooLarge": "Value too large"
+}

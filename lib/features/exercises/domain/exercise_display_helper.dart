@@ -1,9 +1,111 @@
 import 'dart:convert';
+import 'dart:ui' show Locale;
 
 import '../../../data/database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
 import 'exercise_catalog.dart';
 
 class ExerciseDisplayHelper {
+  static String getLocalizedMuscle(
+    String muscle, {
+    AppLocalizations? l10n,
+    String? locale,
+  }) {
+    final effectiveL10n =
+        l10n ?? lookupAppLocalizations(Locale(locale ?? 'en'));
+    switch (muscle.trim().toLowerCase()) {
+      case 'chest':
+        return effectiveL10n.muscleChest;
+      case 'back':
+        return effectiveL10n.muscleBack;
+      case 'shoulder':
+      case 'shoulders':
+        return effectiveL10n.muscleShoulders;
+      case 'leg':
+      case 'legs':
+        return effectiveL10n.muscleLegs;
+      case 'bicep':
+      case 'biceps':
+        return effectiveL10n.muscleBiceps;
+      case 'tricep':
+      case 'triceps':
+        return effectiveL10n.muscleTriceps;
+      case 'core':
+      case 'abs':
+      case 'abdominals':
+        return effectiveL10n.muscleCore;
+      case 'full body':
+        return effectiveL10n.muscleFullBody;
+      case 'cardio':
+        return effectiveL10n.muscleCardio;
+      case 'quads':
+      case 'quadriceps':
+        return effectiveL10n.muscleQuads;
+      case 'hamstrings':
+        return effectiveL10n.muscleHamstrings;
+      case 'calves':
+        return effectiveL10n.muscleCalves;
+      case 'glutes':
+        return effectiveL10n.muscleGlutes;
+      case 'lats':
+        return effectiveL10n.muscleLats;
+      case 'traps':
+        return effectiveL10n.muscleTraps;
+      case 'forearms':
+        return effectiveL10n.muscleForearms;
+      default:
+        return muscle;
+    }
+  }
+
+  static String getLocalizedEquipment(
+    String equipment, {
+    AppLocalizations? l10n,
+    String? locale,
+  }) {
+    final effectiveL10n =
+        l10n ?? lookupAppLocalizations(Locale(locale ?? 'en'));
+    switch (equipment.trim().toLowerCase()) {
+      case 'barbell':
+        return effectiveL10n.equipmentBarbell;
+      case 'dumbbell':
+        return effectiveL10n.equipmentDumbbell;
+      case 'machine':
+        return effectiveL10n.equipmentMachine;
+      case 'cable':
+        return effectiveL10n.equipmentCable;
+      case 'bodyweight':
+        return effectiveL10n.equipmentBodyweight;
+      case 'kettlebell':
+        return effectiveL10n.equipmentKettlebell;
+      case 'other':
+        return effectiveL10n.equipmentOther;
+      default:
+        return equipment;
+    }
+  }
+
+  static String getLocalizedExerciseType(
+    String type, {
+    AppLocalizations? l10n,
+    String? locale,
+  }) {
+    final effectiveL10n =
+        l10n ?? lookupAppLocalizations(Locale(locale ?? 'en'));
+    switch (type.trim().toLowerCase()) {
+      case 'weight & reps':
+        return effectiveL10n.typeWeightReps;
+      case 'bodyweight reps':
+        return effectiveL10n.typeBodyweightReps;
+      case 'duration':
+        return effectiveL10n.typeDuration;
+      case 'cardio':
+        return effectiveL10n.typeCardio;
+      default:
+        return type;
+    }
+  }
+
   /// Strips Vietnamese diacritics and converts to lowercase for accent-insensitive search.
   static String normalizeSearchText(String str) {
     var result = str.toLowerCase();
@@ -16,6 +118,21 @@ class ExerciseDisplayHelper {
       result = result.replaceAll(withDiacritics[i], withoutDiacritics[i]);
     }
     return result;
+  }
+
+  /// Resolves an exercise name (e.g. from history session or PR record) to localized name via catalog.
+  static String resolveName(
+    String exerciseName, {
+    ExerciseCatalog? catalog,
+    String locale = 'en',
+  }) {
+    if (catalog != null) {
+      final match = catalog.findMatching(exerciseName);
+      if (match != null) {
+        return match.getName(locale: locale);
+      }
+    }
+    return exerciseName;
   }
 
   /// Returns localized exercise name. For catalog items, resolves name from catalog if key exists.

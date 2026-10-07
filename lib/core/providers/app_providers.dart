@@ -18,6 +18,7 @@ import '../../domain/repositories/settings_repository.dart';
 import '../../features/exercises/data/exercise_catalog_loader.dart';
 import '../../features/exercises/data/exercise_catalog_sync.dart';
 import '../../features/exercises/domain/exercise_catalog.dart';
+import '../../l10n/app_localizations.dart';
 import '../../services/notification_service.dart';
 
 // -------------------------------------------------------------
@@ -108,6 +109,61 @@ class WeightUnitNotifier extends Notifier<String> {
 final weightUnitProvider = NotifierProvider<WeightUnitNotifier, String>(
   WeightUnitNotifier.new,
 );
+
+class LanguageNotifier extends Notifier<String> {
+  @override
+  String build() {
+    try {
+      final prefs = ref.watch(sharedPreferencesProvider);
+      final saved = prefs.getString(AppConstants.keyLanguage);
+      if (saved != null && (saved == 'en' || saved == 'vi')) {
+        return saved;
+      }
+    } catch (_) {}
+
+    try {
+      final platformLocale =
+          WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+      if (platformLocale == 'vi') return 'vi';
+    } catch (_) {}
+    return 'en';
+  }
+
+  Future<void> setLanguage(String lang) async {
+    if (state == lang) return;
+    state = lang;
+    await ref.read(settingsRepositoryProvider).setLanguage(lang);
+    await rescheduleWorkoutReminders(ref, language: lang);
+  }
+}
+
+final languageProvider = NotifierProvider<LanguageNotifier, String>(
+  LanguageNotifier.new,
+);
+
+Future<void> rescheduleWorkoutReminders(dynamic ref, {String? language}) async {
+  final repo = ref.read(settingsRepositoryProvider) as SettingsRepository;
+  final enabled = await repo.getReminderEnabled();
+  final notificationService =
+      ref.read(notificationServiceProvider) as NotificationService;
+  if (enabled) {
+    await notificationService.requestPermissions();
+    final days = await repo.getReminderDays();
+    final hour = await repo.getReminderHour();
+    final minute = await repo.getReminderMinute();
+    final lang = language ?? (ref.read(languageProvider) as String);
+    final l10n = lookupAppLocalizations(Locale(lang));
+    await notificationService.scheduleWorkoutReminders(
+      daysOfWeek: days,
+      hour: hour,
+      minute: minute,
+      title: l10n.settingsReminderNotificationTitle,
+      body: l10n.settingsReminderNotificationBody,
+    );
+  } else {
+    await notificationService.cancelWorkoutReminders();
+  }
+}
 
 class AutoFillPreviousNotifier extends Notifier<bool> {
   @override
@@ -272,11 +328,13 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
       // chỉ dọn timer, không bắn thông báo mới để tránh thông báo trùng.
       final overdueMillis = now - endAt;
       if (overdueMillis <= 2500) {
+        final lang = ref.read(languageProvider);
+        final l10n = lookupAppLocalizations(Locale(lang));
         _notificationService.showRestTimerFinished(
-          title: 'Rest finished! 🔔',
+          title: l10n.restTimerNotificationTitle,
           body: exName != null
-              ? 'Time for the next set of $exName'
-              : 'Time for the next set!',
+              ? l10n.restTimerNotificationBodyWithExercise(exName)
+              : l10n.restTimerNotificationBodyDefault,
         );
       }
     } else {
@@ -287,14 +345,16 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
   void _scheduleRestTimerNotification(int endAtMillis, String? exerciseName) {
     // Use a fixed ID for rest timer notifications
     _scheduledNotificationId = 999;
+    final lang = ref.read(languageProvider);
+    final l10n = lookupAppLocalizations(Locale(lang));
 
     _notificationService.scheduleRestTimerAt(
       notificationId: _scheduledNotificationId!,
       endAtMillis: endAtMillis,
-      title: 'Rest finished! 🔔',
+      title: l10n.restTimerNotificationTitle,
       body: exerciseName != null
-          ? 'Time for the next set of $exerciseName'
-          : 'Time for the next set!',
+          ? l10n.restTimerNotificationBodyWithExercise(exerciseName)
+          : l10n.restTimerNotificationBodyDefault,
     );
   }
 

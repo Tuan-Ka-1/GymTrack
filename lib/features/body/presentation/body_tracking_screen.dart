@@ -8,6 +8,7 @@ import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/confirm_dialog.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../data/database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
 
 class BodyTrackingScreen extends ConsumerStatefulWidget {
   const BodyTrackingScreen({super.key});
@@ -19,6 +20,7 @@ class BodyTrackingScreen extends ConsumerStatefulWidget {
 class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
   Future<void> _addMeasurement(BuildContext context) async {
     final weightUnit = ref.read(weightUnitProvider);
+    final l10n = AppLocalizations.of(context)!;
     final weightController = TextEditingController();
     final bodyFatController = TextEditingController();
     final chestController = TextEditingController();
@@ -47,7 +49,7 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Log Body Measurement',
+                l10n.bodyTrackingDialogTitle,
                 style: Theme.of(ctx).textTheme.titleLarge
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
@@ -59,8 +61,10 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
                 ),
                 autofocus: true,
                 decoration: InputDecoration(
-                  labelText: 'Body Weight ($weightUnit) *',
-                  hintText: weightUnit == 'lb' ? 'e.g. 160.0' : 'e.g. 72.5',
+                  labelText: l10n.bodyTrackingWeightLabel(weightUnit),
+                  hintText: weightUnit == 'lb'
+                      ? l10n.bodyTrackingWeightHintLb
+                      : l10n.bodyTrackingWeightHintKg,
                 ),
               ),
               const SizedBox(height: 12),
@@ -72,8 +76,8 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Body Fat %',
+                      decoration: InputDecoration(
+                        labelText: l10n.bodyTrackingBodyFatLabel,
                         hintText: '15.0',
                       ),
                     ),
@@ -85,8 +89,8 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Waist (cm)',
+                      decoration: InputDecoration(
+                        labelText: l10n.bodyTrackingWaistLabel,
                         hintText: '80',
                       ),
                     ),
@@ -102,8 +106,8 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Chest (cm)',
+                      decoration: InputDecoration(
+                        labelText: l10n.bodyTrackingChestLabel,
                         hintText: '100',
                       ),
                     ),
@@ -115,8 +119,8 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Arm (cm)',
+                      decoration: InputDecoration(
+                        labelText: l10n.bodyTrackingArmLabel,
                         hintText: '36',
                       ),
                     ),
@@ -128,8 +132,8 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Thigh (cm)',
+                      decoration: InputDecoration(
+                        labelText: l10n.bodyTrackingThighLabel,
                         hintText: '58',
                       ),
                     ),
@@ -139,9 +143,9 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
               const SizedBox(height: 12),
               TextField(
                 controller: notesController,
-                decoration: const InputDecoration(
-                  labelText: 'Notes (optional)',
-                  hintText: 'Morning weight, fasting...',
+                decoration: InputDecoration(
+                  labelText: l10n.bodyTrackingNotesLabel,
+                  hintText: l10n.bodyTrackingNotesHint,
                 ),
               ),
               const SizedBox(height: 20),
@@ -157,9 +161,9 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
                       Navigator.of(ctx).pop(true);
                     }
                   },
-                  child: const Text(
-                    'SAVE MEASUREMENT',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  child: Text(
+                    l10n.bodyTrackingSaveButton,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -195,15 +199,17 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
     final measurementsAsync = ref.watch(bodyMeasurementsStreamProvider);
     final repo = ref.watch(bodyRepositoryProvider);
     final weightUnit = ref.watch(weightUnitProvider);
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Body Tracking'),
+        title: Text(l10n.bodyTrackingTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            tooltip: 'Log Measurement',
+            tooltip: l10n.bodyTrackingLogTooltip,
             onPressed: () => _addMeasurement(context),
           ),
         ],
@@ -213,11 +219,11 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
           if (measurements.isEmpty) {
             return EmptyState(
               icon: Icons.monitor_weight_outlined,
-              title: 'No Body Measurements',
-              subtitle: 'Track your body weight, body fat percentage, and circumference measurements over time.',
+              title: l10n.bodyTrackingEmptyTitle,
+              subtitle: l10n.bodyTrackingEmptySubtitle,
               action: ElevatedButton.icon(
                 icon: const Icon(Icons.add),
-                label: const Text('Log Weight'),
+                label: Text(l10n.bodyTrackingLogWeightButton),
                 onPressed: () => _addMeasurement(context),
               ),
             );
@@ -260,13 +266,18 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Weight Trend',
+                            l10n.bodyTrackingWeightTrend,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            'Latest: ${Formatters.formatWeight(measurements.first.bodyWeight, unit: weightUnit)}',
+                            l10n.bodyTrackingLatestPrefix(
+                              Formatters.formatWeight(
+                                measurements.first.bodyWeight,
+                                unit: weightUnit,
+                              ),
+                            ),
                             style: TextStyle(
                               color: theme.colorScheme.primary,
                               fontWeight: FontWeight.bold,
@@ -325,6 +336,7 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
                                       return Text(
                                         Formatters.formatShortDate(
                                           sortedAsc[idx].date,
+                                          locale: locale,
                                         ),
                                         style: const TextStyle(
                                           fontSize: 10,
@@ -368,7 +380,7 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Measurement History',
+                l10n.bodyTrackingHistoryTitle,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -387,9 +399,15 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
                     ),
                     subtitle: Text(
                       [
-                        Formatters.formatDate(m.date),
-                        if (m.bodyFat != null) 'Fat: ${m.bodyFat}%',
-                        if (m.waist != null) 'Waist: ${m.waist}cm',
+                        Formatters.formatDate(m.date, locale: locale),
+                        if (m.bodyFat != null)
+                          l10n.bodyTrackingSubtitleFat(
+                            m.bodyFat!.toStringAsFixed(1),
+                          ),
+                        if (m.waist != null)
+                          l10n.bodyTrackingSubtitleWaist(
+                            m.waist!.toStringAsFixed(1),
+                          ),
                       ].join(' • '),
                     ),
                     trailing: IconButton(
@@ -401,8 +419,8 @@ class _BodyTrackingScreenState extends ConsumerState<BodyTrackingScreen> {
                       onPressed: () async {
                         final confirmed = await ConfirmDialog.show(
                           context,
-                          title: 'Delete Entry?',
-                          message: 'Remove this measurement entry?',
+                          title: l10n.bodyTrackingDeleteDialogTitle,
+                          message: l10n.bodyTrackingDeleteDialogMessage,
                           isDestructive: true,
                         );
                         if (confirmed) {

@@ -6,6 +6,8 @@ import '../../../core/providers/app_providers.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../data/database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../exercises/domain/exercise_display_helper.dart';
 
 class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key});
@@ -15,17 +17,20 @@ class HistoryScreen extends ConsumerWidget {
     final historyAsync = ref.watch(workoutHistoryStreamProvider);
     final repo = ref.watch(workoutRepositoryProvider);
     final weightUnit = ref.watch(weightUnitProvider);
+    final catalog = ref.watch(exerciseCatalogProvider).value;
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Workout History')),
+      appBar: AppBar(title: Text(l10n.historyTitle)),
       body: historyAsync.when(
         data: (sessions) {
           if (sessions.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.history_rounded,
-              title: 'No Workouts Completed Yet',
-              subtitle: 'Start a workout session and log your sets. Your history and volume progress will appear here.',
+              title: l10n.historyEmptyTitle,
+              subtitle: l10n.historyEmptySubtitle,
             );
           }
 
@@ -59,6 +64,7 @@ class HistoryScreen extends ConsumerWidget {
                             Text(
                               Formatters.formatDate(
                                 session.finishedAt ?? session.startedAt,
+                                locale: locale,
                               ),
                               style: const TextStyle(
                                 fontSize: 12,
@@ -75,7 +81,13 @@ class HistoryScreen extends ConsumerWidget {
                           builder: (context, exSnapshot) {
                             final exSessions = exSnapshot.data ?? [];
                             final exNames = exSessions
-                                .map((e) => e.exerciseName)
+                                .map(
+                                  (e) => ExerciseDisplayHelper.resolveName(
+                                    e.exerciseName,
+                                    catalog: catalog,
+                                    locale: locale,
+                                  ),
+                                )
                                 .take(4)
                                 .join(', ');
 
@@ -111,7 +123,9 @@ class HistoryScreen extends ConsumerWidget {
                                     const SizedBox(width: 8),
                                     _buildChip(
                                       Icons.fitness_center,
-                                      '${exSessions.length} exercises',
+                                      l10n.historyExercisesCount(
+                                        exSessions.length,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -128,7 +142,7 @@ class HistoryScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(l10n.commonError(e.toString()))),
       ),
     );
   }

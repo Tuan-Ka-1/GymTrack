@@ -1,17 +1,19 @@
 import 'package:intl/intl.dart';
 
+import '../../l10n/app_localizations.dart';
 import 'calculator.dart';
 
-class Formatters {
-  static final DateFormat _dateFormat = DateFormat('dd MMM yyyy');
-  static final DateFormat _shortDateFormat = DateFormat('dd/MM');
-  static final DateFormat _timeFormat = DateFormat('HH:mm');
-  static final DateFormat _dayOfWeekFormat = DateFormat('EEEE');
+enum InputValidationError { required, invalidNumber, negative, tooLarge }
 
-  static String formatDate(DateTime date) => _dateFormat.format(date);
-  static String formatShortDate(DateTime date) => _shortDateFormat.format(date);
-  static String formatTime(DateTime date) => _timeFormat.format(date);
-  static String formatDayOfWeek(DateTime date) => _dayOfWeekFormat.format(date);
+class Formatters {
+  static String formatDate(DateTime date, {String? locale}) =>
+      DateFormat('dd MMM yyyy', locale).format(date);
+  static String formatShortDate(DateTime date, {String? locale}) =>
+      DateFormat('dd/MM', locale).format(date);
+  static String formatTime(DateTime date, {String? locale}) =>
+      DateFormat('HH:mm', locale).format(date);
+  static String formatDayOfWeek(DateTime date, {String? locale}) =>
+      DateFormat('EEEE', locale).format(date);
 
   /// Format seconds into mm:ss (e.g. 01:30)
   static String formatTimer(int totalSeconds) {
@@ -89,27 +91,83 @@ class Formatters {
     return int.tryParse(text.trim());
   }
 
-  /// Validate weight input
-  static String? validateWeight(String? value) {
+  /// Check weight input returning validation error code
+  static InputValidationError? checkWeight(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Please enter weight';
+      return InputValidationError.required;
     }
     final num = parseDouble(value);
-    if (num == null) return 'Invalid number';
-    if (num < 0) return 'Must be >= 0';
-    if (num > 1000) return 'Value too large';
+    if (num == null) return InputValidationError.invalidNumber;
+    if (num < 0) return InputValidationError.negative;
+    if (num > 1000) return InputValidationError.tooLarge;
     return null;
   }
 
-  /// Validate reps input
-  static String? validateReps(String? value) {
+  /// Check reps input returning validation error code
+  static InputValidationError? checkReps(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Please enter reps';
+      return InputValidationError.required;
     }
     final num = parseInt(value);
-    if (num == null) return 'Invalid number';
-    if (num < 0) return 'Must be >= 0';
-    if (num > 500) return 'Value too large';
+    if (num == null) return InputValidationError.invalidNumber;
+    if (num < 0) return InputValidationError.negative;
+    if (num > 500) return InputValidationError.tooLarge;
     return null;
+  }
+
+  /// Validate weight input
+  static String? validateWeight(String? value, {AppLocalizations? l10n}) {
+    final err = checkWeight(value);
+    if (err == null) return null;
+    if (l10n != null) {
+      switch (err) {
+        case InputValidationError.required:
+          return l10n.validationErrorRequired;
+        case InputValidationError.invalidNumber:
+          return l10n.validationErrorInvalidNumber;
+        case InputValidationError.negative:
+          return l10n.validationErrorNegative;
+        case InputValidationError.tooLarge:
+          return l10n.validationErrorTooLarge;
+      }
+    }
+    switch (err) {
+      case InputValidationError.required:
+        return 'Please enter weight';
+      case InputValidationError.invalidNumber:
+        return 'Invalid number';
+      case InputValidationError.negative:
+        return 'Must be >= 0';
+      case InputValidationError.tooLarge:
+        return 'Value too large';
+    }
+  }
+
+  /// Validate reps input
+  static String? validateReps(String? value, {AppLocalizations? l10n}) {
+    final err = checkReps(value);
+    if (err == null) return null;
+    if (l10n != null) {
+      switch (err) {
+        case InputValidationError.required:
+          return l10n.validationErrorRequired;
+        case InputValidationError.invalidNumber:
+          return l10n.validationErrorInvalidNumber;
+        case InputValidationError.negative:
+          return l10n.validationErrorNegative;
+        case InputValidationError.tooLarge:
+          return l10n.validationErrorTooLarge;
+      }
+    }
+    switch (err) {
+      case InputValidationError.required:
+        return 'Please enter reps';
+      case InputValidationError.invalidNumber:
+        return 'Invalid number';
+      case InputValidationError.negative:
+        return 'Must be >= 0';
+      case InputValidationError.tooLarge:
+        return 'Value too large';
+    }
   }
 }

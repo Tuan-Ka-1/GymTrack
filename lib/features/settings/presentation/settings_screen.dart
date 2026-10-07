@@ -6,7 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../core/widgets/confirm_dialog.dart';
-import '../../../services/notification_service.dart';
+import '../../../l10n/app_localizations.dart';
 import 'widgets/app_info_section.dart';
 import 'widgets/backup_settings_card.dart';
 import 'widgets/preferences_section.dart';
@@ -67,26 +67,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         _reminderMinute = picked.minute;
       });
       if (_reminderEnabled) {
-        await _scheduleReminders();
+        await rescheduleWorkoutReminders(ref);
       }
     }
   }
 
-  Future<void> _scheduleReminders() async {
-    final notificationService = NotificationService();
-    await notificationService.scheduleWorkoutReminders(
-      daysOfWeek: _reminderDays,
-      hour: _reminderHour,
-      minute: _reminderMinute,
-    );
-  }
-
-  Future<void> _cancelReminders() async {
-    final notificationService = NotificationService();
-    await notificationService.cancelWorkoutReminders();
-  }
-
   Future<void> _exportBackup() async {
+    final l10n = AppLocalizations.of(context)!;
     final repo = ref.read(settingsRepositoryProvider);
     final json = await repo.exportBackupJson();
 
@@ -94,13 +81,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Export Backup'),
+          title: Text(l10n.settingsExportDialogTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Backup data generated successfully! You can copy to clipboard or share via device.',
-              ),
+              Text(l10n.settingsExportDialogMessage),
               const SizedBox(height: 12),
               Container(
                 height: 100,
@@ -124,12 +109,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Clipboard.setData(ClipboardData(text: json));
                 Navigator.of(ctx).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Backup JSON copied to clipboard!'),
-                  ),
+                  SnackBar(content: Text(l10n.settingsExportCopiedSnackBar)),
                 );
               },
-              child: const Text('Copy to Clipboard'),
+              child: Text(l10n.settingsExportCopyButton),
             ),
             FilledButton(
               onPressed: () {
@@ -138,7 +121,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ShareParams(text: json, subject: 'GymTrack_Backup.json'),
                 );
               },
-              child: const Text('Share File'),
+              child: Text(l10n.settingsExportShareButton),
             ),
           ],
         ),
@@ -148,22 +131,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _importBackup() async {
     final controller = TextEditingController();
+    final l10n = AppLocalizations.of(context)!;
 
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Import Backup'),
+        title: Text(l10n.settingsImportDialogTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Paste your exported JSON backup string below:'),
+            Text(l10n.settingsImportDialogMessage),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
               maxLines: 6,
-              decoration: const InputDecoration(
-                hintText: 'Paste JSON content here...',
+              decoration: InputDecoration(
+                hintText: l10n.settingsImportDialogHint,
               ),
             ),
           ],
@@ -171,7 +155,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () {
@@ -179,7 +163,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 Navigator.of(ctx).pop(true);
               }
             },
-            child: const Text('Restore Data'),
+            child: Text(l10n.commonRestore),
           ),
         ],
       ),
@@ -193,14 +177,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         await ref.read(exerciseCatalogSyncProvider).syncIfNeeded(force: true);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Database restored successfully!')),
+            SnackBar(content: Text(l10n.settingsImportSuccessSnackBar)),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to import backup: $e'),
+              content: Text(l10n.settingsImportFailedSnackBar(e.toString())),
               backgroundColor: Colors.red,
             ),
           );
@@ -210,11 +194,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _resetAllData() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await ConfirmDialog.show(
       context,
-      title: 'Delete All Data?',
-      message: 'This will completely erase all workout history, custom exercises, routines, and body measurements. This action CANNOT be undone.',
-      confirmText: 'DELETE EVERYTHING',
+      title: l10n.settingsDeleteAllDialogTitle,
+      message: l10n.settingsDeleteAllDialogMessage,
+      confirmText: l10n.settingsDeleteAllDialogConfirm,
+      cancelText: l10n.commonCancel,
       isDestructive: true,
     );
 
@@ -228,7 +214,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       await ref.read(exerciseCatalogSyncProvider).syncIfNeeded(force: true);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('All data has been reset to defaults.')),
+          SnackBar(content: Text(l10n.settingsDeleteAllSuccessSnackBar)),
         );
       }
     }
@@ -236,8 +222,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -264,14 +252,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               await repo.setReminderEnabled(val);
               setState(() => _reminderEnabled = val);
               if (val) {
-                await NotificationService().requestPermissions();
-                await _scheduleReminders();
+                await ref
+                    .read(notificationServiceProvider)
+                    .requestPermissions();
+                await rescheduleWorkoutReminders(ref);
               } else {
-                await _cancelReminders();
+                await ref
+                    .read(notificationServiceProvider)
+                    .cancelWorkoutReminders();
               }
             },
             onPickTime: _pickTime,
-            onDaySelected: (day, selected) {
+            onDaySelected: (day, selected) async {
               setState(() {
                 if (selected) {
                   _reminderDays.add(day);
@@ -279,11 +271,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _reminderDays.remove(day);
                 }
               });
-              ref
+              await ref
                   .read(settingsRepositoryProvider)
                   .setReminderDays(_reminderDays);
               if (_reminderEnabled) {
-                _scheduleReminders();
+                await rescheduleWorkoutReminders(ref);
               }
             },
           ),

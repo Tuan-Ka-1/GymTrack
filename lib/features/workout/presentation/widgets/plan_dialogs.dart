@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 
 import '../../../../data/database/app_database.dart';
+import '../../../../l10n/app_localizations.dart';
 
 abstract class PlanDialogs {
   static Future<String?> showAddWorkoutDay(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController();
 
     final created = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Add Workout Day'),
+        title: Text(l10n.dialogAddWorkoutDayTitle),
         content: TextField(
           controller: nameController,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Day Name (e.g., Push, Chest & Back)',
-          ),
+          decoration: InputDecoration(hintText: l10n.dialogWorkoutDayHint),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () {
@@ -28,7 +28,7 @@ abstract class PlanDialogs {
                 Navigator.of(ctx).pop(true);
               }
             },
-            child: const Text('Add'),
+            child: Text(l10n.commonAdd),
           ),
         ],
       ),
@@ -44,21 +44,22 @@ abstract class PlanDialogs {
     BuildContext context,
     WorkoutPlanEntry plan,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController(text: plan.name);
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Rename Plan'),
+        title: Text(l10n.dialogRenamePlanTitle),
         content: TextField(
           controller: nameController,
           autofocus: true,
-          decoration: const InputDecoration(hintText: 'Plan name'),
+          decoration: InputDecoration(hintText: l10n.dialogRenamePlanHint),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () {
@@ -66,7 +67,7 @@ abstract class PlanDialogs {
                 Navigator.of(ctx).pop(true);
               }
             },
-            child: const Text('Save'),
+            child: Text(l10n.commonSave),
           ),
         ],
       ),
@@ -82,23 +83,22 @@ abstract class PlanDialogs {
     BuildContext context,
     WorkoutDayEntry day,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController(text: day.name);
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Rename Day'),
+        title: Text(l10n.dialogRenameDayTitle),
         content: TextField(
           controller: nameController,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Day name (e.g., Push, Pull)',
-          ),
+          decoration: InputDecoration(hintText: l10n.dialogRenameDayHint),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () {
@@ -106,7 +106,7 @@ abstract class PlanDialogs {
                 Navigator.of(ctx).pop(true);
               }
             },
-            child: const Text('Save'),
+            child: Text(l10n.commonSave),
           ),
         ],
       ),
@@ -122,6 +122,7 @@ abstract class PlanDialogs {
     BuildContext context,
     WorkoutExerciseEntry we,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final setsController = TextEditingController(
       text: we.targetSets.toString(),
     );
@@ -138,7 +139,7 @@ abstract class PlanDialogs {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Edit Exercise Settings'),
+        title: Text(l10n.dialogEditExerciseParamsTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -146,22 +147,26 @@ abstract class PlanDialogs {
               TextField(
                 controller: setsController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Target Sets'),
+                decoration: InputDecoration(
+                  labelText: l10n.dialogTargetSetsLabel,
+                ),
               ),
               TextField(
                 controller: minRepsController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Min Reps'),
+                decoration: InputDecoration(labelText: l10n.dialogMinRepsLabel),
               ),
               TextField(
                 controller: maxRepsController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Max Reps'),
+                decoration: InputDecoration(labelText: l10n.dialogMaxRepsLabel),
               ),
               TextField(
                 controller: restController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Rest (seconds)'),
+                decoration: InputDecoration(
+                  labelText: l10n.dialogRestSecondsLabel,
+                ),
               ),
             ],
           ),
@@ -169,11 +174,11 @@ abstract class PlanDialogs {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Save'),
+            child: Text(l10n.commonSave),
           ),
         ],
       ),

@@ -6,6 +6,8 @@ import '../../../core/providers/app_providers.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/confirm_dialog.dart';
 import '../../../data/database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../exercises/domain/exercise_display_helper.dart';
 
 class WorkoutHistoryDetailScreen extends ConsumerWidget {
   final int sessionId;
@@ -17,20 +19,25 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
     final db = ref.watch(databaseProvider);
     final repo = ref.watch(workoutRepositoryProvider);
     final weightUnit = ref.watch(weightUnitProvider);
+    final catalog = ref.watch(exerciseCatalogProvider).value;
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Workout Details'),
+        title: Text(l10n.historyDetailTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-            tooltip: 'Delete Log',
+            tooltip: l10n.historyDetailDeleteTooltip,
             onPressed: () async {
               final confirmed = await ConfirmDialog.show(
                 context,
-                title: 'Delete Workout Log?',
-                message: 'Are you sure you want to permanently delete this workout from history?',
+                title: l10n.historyDetailDeleteTitle,
+                message: l10n.historyDetailDeleteMessage,
+                confirmText: l10n.commonDelete,
+                cancelText: l10n.commonCancel,
                 isDestructive: true,
               );
               if (confirmed) {
@@ -54,7 +61,7 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
 
           final session = sessionSnapshot.data;
           if (session == null) {
-            return const Center(child: Text('Session not found'));
+            return Center(child: Text(l10n.historyDetailSessionNotFound));
           }
 
           return FutureBuilder<List<ExerciseSessionEntry>>(
@@ -81,6 +88,7 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
                           Text(
                             Formatters.formatDate(
                               session.finishedAt ?? session.startedAt,
+                              locale: locale,
                             ),
                             style: const TextStyle(color: Colors.grey),
                           ),
@@ -89,14 +97,14 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               _buildMiniStat(
-                                'Duration',
+                                l10n.summaryDuration,
                                 Formatters.formatDuration(
                                   session.durationMinutes,
                                 ),
                                 theme,
                               ),
                               _buildMiniStat(
-                                'Volume',
+                                l10n.summaryVolume,
                                 Formatters.formatVolume(
                                   session.totalVolume,
                                   unit: weightUnit,
@@ -104,7 +112,7 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
                                 theme,
                               ),
                               _buildMiniStat(
-                                'Exercises',
+                                l10n.summaryExercises,
                                 '${exSessions.length}',
                                 theme,
                               ),
@@ -114,7 +122,7 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
                               session.notes!.isNotEmpty) ...[
                             const SizedBox(height: 16),
                             Text(
-                              'Note: ${session.notes}',
+                              l10n.summaryNotePrefix(session.notes!),
                               style: const TextStyle(
                                 fontStyle: FontStyle.italic,
                                 color: Colors.white70,
@@ -127,7 +135,7 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Exercises & Sets',
+                    l10n.historyDetailExercisesAndSets,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -142,7 +150,11 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              es.exerciseName,
+                              ExerciseDisplayHelper.resolveName(
+                                es.exerciseName,
+                                catalog: catalog,
+                                locale: locale,
+                              ),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -154,9 +166,9 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
                               builder: (context, setSnapshot) {
                                 final sets = setSnapshot.data ?? [];
                                 if (sets.isEmpty) {
-                                  return const Text(
-                                    'No sets recorded',
-                                    style: TextStyle(color: Colors.grey),
+                                  return Text(
+                                    l10n.historyDetailNoSets,
+                                    style: const TextStyle(color: Colors.grey),
                                   );
                                 }
 
@@ -170,7 +182,9 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
                                           child: Row(
                                             children: [
                                               Text(
-                                                'Set ${s.setNumber}:',
+                                                l10n.historyDetailSetLabel(
+                                                  s.setNumber,
+                                                ),
                                                 style: const TextStyle(
                                                   color: Colors.grey,
                                                   fontWeight: FontWeight.bold,
@@ -178,7 +192,13 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
                                               ),
                                               const SizedBox(width: 12),
                                               Text(
-                                                '${Formatters.formatWeight(s.weight, unit: weightUnit)} × ${s.reps} reps',
+                                                l10n.historyDetailSetSummary(
+                                                  Formatters.formatWeight(
+                                                    s.weight,
+                                                    unit: weightUnit,
+                                                  ),
+                                                  s.reps,
+                                                ),
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                 ),

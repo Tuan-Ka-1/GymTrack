@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/app_providers.dart';
 import '../../../data/database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
 import 'widgets/day_card.dart';
 import 'widgets/plan_dialogs.dart';
 
@@ -95,20 +96,21 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
           );
         }
 
+        final l10n = AppLocalizations.of(context)!;
         return Scaffold(
           appBar: AppBar(
             title: Text(plan.name),
             actions: [
               IconButton(
                 icon: const Icon(Icons.edit),
-                tooltip: 'Rename Plan',
+                tooltip: l10n.planDetailRenameTooltip,
                 onPressed: () => _renamePlan(context, plan),
               ),
             ],
           ),
           floatingActionButton: FloatingActionButton.extended(
             icon: const Icon(Icons.add),
-            label: const Text('Add Day'),
+            label: Text(l10n.planDetailAddDay),
             onPressed: () async {
               final days = await repo.getDaysForPlan(plan.id);
               if (context.mounted) {
@@ -131,22 +133,23 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
                         color: Colors.grey,
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'No workout days yet',
-                        style: TextStyle(
+                      Text(
+                        l10n.planDetailNoDaysTitle,
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Add days like "Push", "Pull", or "Legs" to organize exercises.',
-                        style: TextStyle(color: Colors.grey),
+                      Text(
+                        l10n.planDetailNoDaysSubtitle,
+                        style: const TextStyle(color: Colors.grey),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
                         icon: const Icon(Icons.add),
-                        label: const Text('Add Workout Day'),
+                        label: Text(l10n.planDetailAddDayButton),
                         onPressed: () => _addWorkoutDay(context, 0),
                       ),
                     ],

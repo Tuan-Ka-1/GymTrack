@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
 
 class WorkoutSummaryScreen extends ConsumerWidget {
   final int sessionId;
@@ -16,6 +17,7 @@ class WorkoutSummaryScreen extends ConsumerWidget {
     final db = ref.watch(databaseProvider);
     final repo = ref.watch(workoutRepositoryProvider);
     final weightUnit = ref.watch(weightUnitProvider);
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -31,7 +33,7 @@ class WorkoutSummaryScreen extends ConsumerWidget {
 
             final session = sessionSnapshot.data;
             if (session == null) {
-              return const Center(child: Text('Session not found'));
+              return Center(child: Text(l10n.summarySessionNotFound));
             }
 
             return FutureBuilder<List<ExerciseSessionEntry>>(
@@ -66,7 +68,7 @@ class WorkoutSummaryScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 24),
                           Text(
-                            'Workout Completed! 💪',
+                            l10n.summaryTitle,
                             style: theme.textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -92,7 +94,7 @@ class WorkoutSummaryScreen extends ConsumerWidget {
                                 Row(
                                   children: [
                                     _buildStatItem(
-                                      'Duration',
+                                      l10n.summaryDuration,
                                       Formatters.formatDuration(
                                         session.durationMinutes,
                                       ),
@@ -100,7 +102,7 @@ class WorkoutSummaryScreen extends ConsumerWidget {
                                       theme,
                                     ),
                                     _buildStatItem(
-                                      'Exercises',
+                                      l10n.summaryExercises,
                                       '${exSessions.length}',
                                       Icons.fitness_center_rounded,
                                       theme,
@@ -111,13 +113,13 @@ class WorkoutSummaryScreen extends ConsumerWidget {
                                 Row(
                                   children: [
                                     _buildStatItem(
-                                      'Sets',
+                                      l10n.summarySets,
                                       '$totalSets',
                                       Icons.repeat_rounded,
                                       theme,
                                     ),
                                     _buildStatItem(
-                                      'Total Volume',
+                                      l10n.summaryVolume,
                                       Formatters.formatVolume(
                                         session.totalVolume,
                                         unit: weightUnit,
@@ -141,7 +143,7 @@ class WorkoutSummaryScreen extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Text(
-                                'Note: ${session.notes}',
+                                l10n.summaryNotePrefix(session.notes!),
                                 style: const TextStyle(
                                   fontStyle: FontStyle.italic,
                                   color: Colors.white70,
@@ -157,7 +159,7 @@ class WorkoutSummaryScreen extends ConsumerWidget {
                               onPressed: () {
                                 context.go('/');
                               },
-                              child: const Text('BACK TO HOME'),
+                              child: Text(l10n.summaryBackToHome),
                             ),
                           ),
                           const SizedBox(height: 16),

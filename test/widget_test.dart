@@ -10,6 +10,7 @@ import 'package:gymtrack/features/home/presentation/home_screen.dart';
 import 'package:gymtrack/features/workout/presentation/workout_plans_screen.dart';
 import 'package:gymtrack/features/history/presentation/history_screen.dart';
 import 'package:gymtrack/features/progress/presentation/progress_screen.dart';
+import 'package:gymtrack/l10n/app_localizations.dart';
 import 'package:gymtrack/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -98,7 +99,11 @@ void main() {
             ),
             allTimePRsProvider.overrideWith((ref) => Future.value([])),
           ],
-          child: const MaterialApp(home: HomeScreen()),
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: HomeScreen(),
+          ),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
@@ -116,7 +121,11 @@ void main() {
           overrides: [
             workoutPlansStreamProvider.overrideWith((ref) => Stream.value([])),
           ],
-          child: const MaterialApp(home: WorkoutPlansScreen()),
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: WorkoutPlansScreen(),
+          ),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
@@ -135,7 +144,11 @@ void main() {
               (ref) => Stream.value([]),
             ),
           ],
-          child: const MaterialApp(home: HistoryScreen()),
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: HistoryScreen(),
+          ),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));
@@ -194,7 +207,11 @@ void main() {
             ),
             exercisesStreamProvider.overrideWith((ref) => Stream.value([])),
           ],
-          child: const MaterialApp(home: ProgressScreen()),
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: ProgressScreen(),
+          ),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));

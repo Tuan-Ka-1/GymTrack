@@ -6,6 +6,8 @@ import '../../../core/providers/app_providers.dart';
 import '../../../core/utils/calculator.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../exercises/domain/exercise_display_helper.dart';
 
 class ProgressScreen extends ConsumerStatefulWidget {
   const ProgressScreen({super.key});
@@ -24,10 +26,13 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
     final historyAsync = ref.watch(workoutHistoryStreamProvider);
     final repo = ref.watch(workoutRepositoryProvider);
     final weightUnit = ref.watch(weightUnitProvider);
+    final catalog = ref.watch(exerciseCatalogProvider).value;
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Progress & Analytics')),
+      appBar: AppBar(title: Text(l10n.progressTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -42,14 +47,14 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               return Row(
                 children: [
                   _buildStatCard(
-                    'Total Workouts',
+                    l10n.progressTotalWorkouts,
                     '$totalWorkouts',
                     Icons.fitness_center_rounded,
                     theme,
                   ),
                   const SizedBox(width: 12),
                   _buildStatCard(
-                    'Total Volume',
+                    l10n.progressTotalVolume,
                     Formatters.formatVolume(totalVolume, unit: weightUnit),
                     Icons.bar_chart_rounded,
                     theme,
@@ -73,17 +78,17 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Exercise Analytics',
+                        l10n.progressExerciseAnalytics,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
                         _selectedMetricIndex == 2
-                            ? 'Volume ($weightUnit)'
+                            ? l10n.progressVolumeMetric(weightUnit)
                             : _selectedMetricIndex == 1
-                            ? 'Max Wt ($weightUnit)'
-                            : 'Epley 1RM ($weightUnit)',
+                            ? l10n.progressMaxWeightMetric(weightUnit)
+                            : l10n.progressEstimated1RMMetric(weightUnit),
                         style: TextStyle(
                           fontSize: 12,
                           color: theme.colorScheme.primary,
@@ -101,14 +106,20 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
 
                       return DropdownButtonFormField<int>(
                         value: _selectedExerciseId,
-                        decoration: const InputDecoration(
-                          labelText: 'Select Exercise',
+                        decoration: InputDecoration(
+                          labelText: l10n.progressSelectExercise,
                         ),
                         items: exercises
                             .map(
                               (e) => DropdownMenuItem(
                                 value: e.id,
-                                child: Text(e.name),
+                                child: Text(
+                                  ExerciseDisplayHelper.resolveName(
+                                    e.name,
+                                    catalog: catalog,
+                                    locale: locale,
+                                  ),
+                                ),
                               ),
                             )
                             .toList(),
@@ -125,10 +136,13 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                   const SizedBox(height: 12),
                   // Metric toggle: 1RM vs Max Weight vs Volume
                   SegmentedButton<int>(
-                    segments: const [
-                      ButtonSegment(value: 0, label: Text('1RM')),
-                      ButtonSegment(value: 1, label: Text('Max Wt')),
-                      ButtonSegment(value: 2, label: Text('Volume')),
+                    segments: [
+                      ButtonSegment(value: 0, label: Text(l10n.progress1RM)),
+                      ButtonSegment(
+                        value: 1,
+                        label: Text(l10n.progressMaxWeight),
+                      ),
+                      ButtonSegment(value: 2, label: Text(l10n.progressVolume)),
                     ],
                     selected: {_selectedMetricIndex},
                     onSelectionChanged: (val) {
@@ -153,13 +167,13 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
 
                         final points = snapshot.data ?? [];
                         if (points.isEmpty) {
-                          return const SizedBox(
+                          return SizedBox(
                             height: 180,
                             child: Center(
                               child: Text(
-                                'No completed sets recorded for this exercise yet.\nComplete workouts to see your progress curve!',
+                                l10n.progressNoCompletedSets,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.grey),
+                                style: const TextStyle(color: Colors.grey),
                               ),
                             ),
                           );
@@ -250,6 +264,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                                         return Text(
                                           Formatters.formatShortDate(
                                             points[idx].date,
+                                            locale: locale,
                                           ),
                                           style: const TextStyle(
                                             fontSize: 10,
@@ -312,7 +327,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Personal Records (PR)',
+                        l10n.progressPrTitle,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -325,11 +340,11 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                     builder: (context, prSnapshot) {
                       final prs = prSnapshot.data ?? [];
                       if (prs.isEmpty) {
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.0),
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
                           child: Text(
-                            'Complete workout sets to establish your PRs!',
-                            style: TextStyle(color: Colors.grey),
+                            l10n.progressPrEmpty,
+                            style: const TextStyle(color: Colors.grey),
                           ),
                         );
                       }
@@ -345,14 +360,27 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        pr.exerciseName,
+                                        ExerciseDisplayHelper.resolveName(
+                                          pr.exerciseName,
+                                          catalog: catalog,
+                                          locale: locale,
+                                        ),
                                         style: const TextStyle(
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                     ),
                                     Text(
-                                      '${Formatters.formatWeight(pr.maxWeight, unit: weightUnit)} (Est 1RM: ${Formatters.formatWeight(pr.estimated1RM, unit: weightUnit)})',
+                                      l10n.progressPrRow(
+                                        Formatters.formatWeight(
+                                          pr.maxWeight,
+                                          unit: weightUnit,
+                                        ),
+                                        Formatters.formatWeight(
+                                          pr.estimated1RM,
+                                          unit: weightUnit,
+                                        ),
+                                      ),
                                       style: TextStyle(
                                         color: theme.colorScheme.primary,
                                         fontWeight: FontWeight.bold,

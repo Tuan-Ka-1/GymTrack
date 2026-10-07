@@ -5,15 +5,17 @@ import 'package:go_router/go_router.dart';
 import '../../../core/providers/app_providers.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../exercises/domain/exercise_display_helper.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  String _getGreeting() {
+  String _getGreeting(AppLocalizations l10n) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning ☀️';
-    if (hour < 18) return 'Good Afternoon ⚡';
-    return 'Good Evening 🌙';
+    if (hour < 12) return l10n.homeGreetingMorning;
+    if (hour < 18) return l10n.homeGreetingAfternoon;
+    return l10n.homeGreetingEvening;
   }
 
   Future<void> _startQuickWorkout(BuildContext context, WidgetRef ref) async {
@@ -66,6 +68,9 @@ class HomeScreen extends ConsumerWidget {
     final weightUnit = ref.watch(weightUnitProvider);
     final historyAsync = ref.watch(workoutHistoryStreamProvider);
     final prsAsync = ref.watch(allTimePRsProvider);
+    final catalog = ref.watch(exerciseCatalogProvider).value;
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -74,7 +79,7 @@ class HomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _getGreeting(),
+              _getGreeting(l10n),
               style: const TextStyle(
                 fontSize: 14,
                 color: Colors.grey,
@@ -90,12 +95,12 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.scale_rounded),
-            tooltip: 'Log Body Weight',
+            tooltip: l10n.homeTooltipBodyWeight,
             onPressed: () => context.push('/body-tracking'),
           ),
           IconButton(
             icon: const Icon(Icons.fitness_center),
-            tooltip: 'Exercise Library',
+            tooltip: l10n.homeTooltipExerciseLibrary,
             onPressed: () => context.push('/exercises'),
           ),
         ],
@@ -137,7 +142,7 @@ class HomeScreen extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              'TODAY',
+                              l10n.homeTodayBadge,
                               style: TextStyle(
                                 color: theme.colorScheme.primary,
                                 fontSize: 11,
@@ -148,7 +153,10 @@ class HomeScreen extends ConsumerWidget {
                           ),
                           const Spacer(),
                           Text(
-                            Formatters.formatDayOfWeek(DateTime.now()),
+                            Formatters.formatDayOfWeek(
+                              DateTime.now(),
+                              locale: locale,
+                            ),
                             style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 13,
@@ -158,7 +166,7 @@ class HomeScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        plan != null ? plan.name : 'Quick Workout Routine',
+                        plan != null ? plan.name : l10n.homeQuickWorkoutRoutine,
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
@@ -166,7 +174,7 @@ class HomeScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        plan?.description ?? 'No routine set. Tap start to begin an open session.',
+                        plan?.description ?? l10n.homeNoRoutineDesc,
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 13,
@@ -178,9 +186,9 @@ class HomeScreen extends ConsumerWidget {
                         height: 50,
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.play_arrow_rounded, size: 24),
-                          label: const Text(
-                            'START WORKOUT',
-                            style: TextStyle(
+                          label: Text(
+                            l10n.homeStartWorkout,
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
                             ),
@@ -217,17 +225,17 @@ class HomeScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Row(
+                            Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.monitor_weight_outlined,
                                   size: 18,
                                   color: Colors.grey,
                                 ),
-                                SizedBox(width: 6),
+                                const SizedBox(width: 6),
                                 Text(
-                                  'Body Weight',
-                                  style: TextStyle(
+                                  l10n.homeBodyWeight,
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey,
                                   ),
@@ -250,8 +258,11 @@ class HomeScreen extends ConsumerWidget {
                             const SizedBox(height: 4),
                             Text(
                               latest != null
-                                  ? Formatters.formatShortDate(latest.date)
-                                  : 'Tap to log',
+                                  ? Formatters.formatShortDate(
+                                      latest.date,
+                                      locale: locale,
+                                    )
+                                  : l10n.homeTapToLog,
                               style: TextStyle(
                                 fontSize: 11,
                                 color: theme.colorScheme.primary,
@@ -281,17 +292,17 @@ class HomeScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.history_rounded,
                                 size: 18,
                                 color: Colors.grey,
                               ),
-                              SizedBox(width: 6),
+                              const SizedBox(width: 6),
                               Text(
-                                'Last Session',
-                                style: TextStyle(
+                                l10n.homeLastSession,
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
                                 ),
@@ -316,8 +327,9 @@ class HomeScreen extends ConsumerWidget {
                                 ? Formatters.formatShortDate(
                                     lastSession.finishedAt ??
                                         lastSession.startedAt,
+                                    locale: locale,
                                   )
-                                : 'No workouts yet',
+                                : l10n.homeNoWorkoutsYet,
                             style: const TextStyle(
                               fontSize: 11,
                               color: Colors.grey,
@@ -346,14 +358,14 @@ class HomeScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Recent PR Highlights 🏆',
+                l10n.homeRecentPrHighlights,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               TextButton(
                 onPressed: () => context.go('/progress'),
-                child: const Text('View All'),
+                child: Text(l10n.homeViewAll),
               ),
             ],
           ),
@@ -370,10 +382,13 @@ class HomeScreen extends ConsumerWidget {
                           color: Colors.grey,
                         ),
                         const SizedBox(width: 12),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Establish your personal records by logging exercises!',
-                            style: TextStyle(color: Colors.grey, fontSize: 13),
+                            l10n.homeEmptyPrDesc,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ],
@@ -402,11 +417,20 @@ class HomeScreen extends ConsumerWidget {
                             ),
                           ),
                           title: Text(
-                            pr.exerciseName,
+                            ExerciseDisplayHelper.resolveName(
+                              pr.exerciseName,
+                              catalog: catalog,
+                              locale: locale,
+                            ),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(
-                            'Achieved on ${Formatters.formatShortDate(pr.achievedAt)}',
+                            l10n.homePrAchievedOn(
+                              Formatters.formatShortDate(
+                                pr.achievedAt,
+                                locale: locale,
+                              ),
+                            ),
                           ),
                           trailing: Text(
                             Formatters.formatWeight(

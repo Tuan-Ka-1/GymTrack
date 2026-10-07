@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/app_providers.dart';
 import '../../../data/database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
 import '../domain/exercise_display_helper.dart';
 
 class ExerciseDetailScreen extends ConsumerWidget {
@@ -24,25 +25,40 @@ class ExerciseDetailScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final catalogAsync = ref.watch(exerciseCatalogProvider);
     final catalog = catalogAsync.value;
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
 
     final displayName = ExerciseDisplayHelper.getName(
       exercise,
       catalog: catalog,
-      locale: 'en',
+      locale: locale,
     );
     final instructions = ExerciseDisplayHelper.getInstructions(
       exercise,
       catalog: catalog,
-      locale: 'en',
+      locale: locale,
     );
     final tips = ExerciseDisplayHelper.getTips(
       exercise,
       catalog: catalog,
-      locale: 'en',
+      locale: locale,
     );
     final secondaryMuscles = ExerciseDisplayHelper.getSecondaryMuscles(
       exercise,
       catalog: catalog,
+    );
+
+    final muscleText = ExerciseDisplayHelper.getLocalizedMuscle(
+      exercise.muscleGroup,
+      locale: locale,
+    );
+    final equipText = ExerciseDisplayHelper.getLocalizedEquipment(
+      exercise.equipment,
+      locale: locale,
+    );
+    final typeText = ExerciseDisplayHelper.getLocalizedExerciseType(
+      exercise.exerciseType,
+      locale: locale,
     );
 
     return DraggableScrollableSheet(
@@ -131,7 +147,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${exercise.muscleGroup} • ${exercise.equipment}',
+                            '$muscleText • $equipText',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: Colors.grey,
                             ),
@@ -148,21 +164,23 @@ class ExerciseDetailScreen extends ConsumerWidget {
                       children: [
                         Chip(
                           avatar: const Icon(Icons.fitness_center, size: 16),
-                          label: Text('Primary: ${exercise.muscleGroup}'),
+                          label: Text(
+                            l10n.exerciseDetailPrimaryMuscle(muscleText),
+                          ),
                         ),
                         Chip(
                           avatar: const Icon(Icons.build_outlined, size: 16),
-                          label: Text(exercise.equipment),
+                          label: Text(equipText),
                         ),
                         Chip(
                           avatar: const Icon(Icons.repeat, size: 16),
-                          label: Text(exercise.exerciseType),
+                          label: Text(typeText),
                         ),
                         if (exercise.isCustom)
                           Chip(
                             backgroundColor: theme.colorScheme.primaryContainer,
                             label: Text(
-                              'Custom',
+                              l10n.exerciseDetailCustomBadge,
                               style: TextStyle(
                                 color: theme.colorScheme.onPrimaryContainer,
                                 fontWeight: FontWeight.bold,
@@ -175,7 +193,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
                     if (secondaryMuscles.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       Text(
-                        'Secondary Muscles',
+                        l10n.exerciseDetailSecondaryMuscles,
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -187,7 +205,12 @@ class ExerciseDetailScreen extends ConsumerWidget {
                         children: secondaryMuscles
                             .map(
                               (m) => Chip(
-                                label: Text(m),
+                                label: Text(
+                                  ExerciseDisplayHelper.getLocalizedMuscle(
+                                    m,
+                                    locale: locale,
+                                  ),
+                                ),
                                 padding: EdgeInsets.zero,
                               ),
                             )
@@ -200,7 +223,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
                         exercise.description!.trim().isNotEmpty) ...[
                       const SizedBox(height: 16),
                       Text(
-                        'Description',
+                        l10n.exerciseDetailDescription,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -221,7 +244,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
                     if (instructions.isNotEmpty) ...[
                       const SizedBox(height: 20),
                       Text(
-                        'Instructions',
+                        l10n.exerciseDetailInstructions,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -266,7 +289,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
                     if (tips.isNotEmpty) ...[
                       const SizedBox(height: 20),
                       Text(
-                        'Pro Tips & Cues',
+                        l10n.exerciseDetailTips,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),

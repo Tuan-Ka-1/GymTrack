@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations.dart';
 import '../../../../services/notification_service.dart';
 
 class WorkoutRemindersSection extends StatelessWidget {
@@ -25,12 +26,24 @@ class WorkoutRemindersSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+
+    final shortDayNames = [
+      '',
+      l10n.dayMonShort,
+      l10n.dayTueShort,
+      l10n.dayWedShort,
+      l10n.dayThuShort,
+      l10n.dayFriShort,
+      l10n.daySatShort,
+      l10n.daySunShort,
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Workout Reminders',
+          l10n.settingsSectionReminders,
           style: theme.textTheme.titleSmall?.copyWith(
             color: theme.colorScheme.primary,
             fontWeight: FontWeight.bold,
@@ -42,10 +55,8 @@ class WorkoutRemindersSection extends StatelessWidget {
             children: [
               SwitchListTile(
                 secondary: const Icon(Icons.notifications_outlined),
-                title: const Text('Daily / Scheduled Reminder'),
-                subtitle: const Text(
-                  'Local notification to remind you to workout',
-                ),
+                title: Text(l10n.settingsReminderSwitchTitle),
+                subtitle: Text(l10n.settingsReminderSwitchSubtitle),
                 value: reminderEnabled,
                 onChanged: onReminderEnabledChanged,
               ),
@@ -53,7 +64,7 @@ class WorkoutRemindersSection extends StatelessWidget {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.access_time),
-                  title: const Text('Reminder Time'),
+                  title: Text(l10n.settingsReminderTimeTitle),
                   trailing: TextButton(
                     onPressed: onPickTime,
                     child: Text(
@@ -75,9 +86,9 @@ class WorkoutRemindersSection extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Reminder Days',
-                        style: TextStyle(
+                      Text(
+                        l10n.settingsReminderDaysTitle,
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -91,18 +102,7 @@ class WorkoutRemindersSection extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.only(right: 6),
                                 child: FilterChip(
-                                  label: Text(
-                                    [
-                                      '',
-                                      'Mon',
-                                      'Tue',
-                                      'Wed',
-                                      'Thu',
-                                      'Fri',
-                                      'Sat',
-                                      'Sun',
-                                    ][i],
-                                  ),
+                                  label: Text(shortDayNames[i]),
                                   selected: reminderDays.contains(i),
                                   onSelected: (selected) =>
                                       onDaySelected(i, selected),
@@ -117,22 +117,21 @@ class WorkoutRemindersSection extends StatelessWidget {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.send_rounded),
-                  title: const Text('Test Notification'),
-                  subtitle: const Text('Sends an instant local notification'),
+                  title: Text(l10n.settingsReminderTestTitle),
+                  subtitle: Text(l10n.settingsReminderTestSubtitle),
                   trailing: FilledButton.tonal(
                     onPressed: () {
                       NotificationService().showInstantReminder(
-                        title: 'Time to workout 💪',
-                        body:
-                            'Don\'t skip today\'s session! Consistency is key.',
+                        title: l10n.settingsReminderNotificationTitle,
+                        body: l10n.settingsReminderNotificationBodyInstant,
                       );
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Notification triggered!'),
+                        SnackBar(
+                          content: Text(l10n.settingsReminderTestSnackBar),
                         ),
                       );
                     },
-                    child: const Text('Test'),
+                    child: Text(l10n.commonTest),
                   ),
                 ),
               ],

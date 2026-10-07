@@ -10,6 +10,7 @@ import 'package:gymtrack/features/exercises/domain/exercise_catalog.dart';
 import 'package:gymtrack/features/exercises/presentation/exercise_detail_screen.dart';
 import 'package:gymtrack/features/exercises/presentation/exercise_library_screen.dart';
 import 'package:gymtrack/features/workout/presentation/widgets/exercise_picker_dialog.dart';
+import 'package:gymtrack/l10n/app_localizations.dart';
 
 void main() {
   late ExerciseCatalog catalog;
@@ -70,7 +71,11 @@ void main() {
         ),
         exerciseCatalogProvider.overrideWith((ref) => Future.value(catalog)),
       ],
-      child: MaterialApp(home: Scaffold(body: child)),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(body: child),
+      ),
     );
   }
 

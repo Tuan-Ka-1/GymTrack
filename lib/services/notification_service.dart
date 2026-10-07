@@ -121,6 +121,8 @@ class NotificationService {
     required List<int> daysOfWeek,
     required int hour,
     required int minute,
+    String title = 'Time to workout 💪',
+    String body = 'Your scheduled workout is waiting!',
   }) async {
     if (!_initialized) return;
 
@@ -159,8 +161,8 @@ class NotificationService {
       try {
         await _notifications.zonedSchedule(
           id: notificationId,
-          title: 'Time to workout 💪',
-          body: 'Your scheduled workout is waiting!',
+          title: title,
+          body: body,
           scheduledDate: scheduledDate,
           notificationDetails: notificationDetails,
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,

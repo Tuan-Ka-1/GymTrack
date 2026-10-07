@@ -18,6 +18,7 @@ class AppConstants {
   static const String keyReminderMinute = 'gymtrack_reminder_minute';
   static const String keyReminderDays = 'gymtrack_reminder_days';
   static const String keyAutoFillPrevious = 'gymtrack_auto_fill_previous';
+  static const String keyLanguage = 'gymtrack_language';
   static const String keyDatabaseSeeded = 'gymtrack_db_seeded_v1';
 
   // Muscle groups
