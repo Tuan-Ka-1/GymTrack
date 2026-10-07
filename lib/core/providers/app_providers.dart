@@ -132,8 +132,13 @@ class LanguageNotifier extends Notifier<String> {
   Future<void> setLanguage(String lang) async {
     if (state == lang) return;
     state = lang;
-    await ref.read(settingsRepositoryProvider).setLanguage(lang);
-    await rescheduleWorkoutReminders(ref, language: lang);
+    final repo = ref.read(settingsRepositoryProvider);
+    await repo.setLanguage(lang);
+    await rescheduleWorkoutReminders(
+      repo: repo,
+      notifications: ref.read(notificationServiceProvider),
+      languageCode: lang,
+    );
   }
 }
 
@@ -141,19 +146,19 @@ final languageProvider = NotifierProvider<LanguageNotifier, String>(
   LanguageNotifier.new,
 );
 
-Future<void> rescheduleWorkoutReminders(dynamic ref, {String? language}) async {
-  final repo = ref.read(settingsRepositoryProvider) as SettingsRepository;
+Future<void> rescheduleWorkoutReminders({
+  required SettingsRepository repo,
+  required NotificationService notifications,
+  required String languageCode,
+}) async {
   final enabled = await repo.getReminderEnabled();
-  final notificationService =
-      ref.read(notificationServiceProvider) as NotificationService;
   if (enabled) {
-    await notificationService.requestPermissions();
+    await notifications.requestPermissions();
     final days = await repo.getReminderDays();
     final hour = await repo.getReminderHour();
     final minute = await repo.getReminderMinute();
-    final lang = language ?? (ref.read(languageProvider) as String);
-    final l10n = lookupAppLocalizations(Locale(lang));
-    await notificationService.scheduleWorkoutReminders(
+    final l10n = lookupAppLocalizations(Locale(languageCode));
+    await notifications.scheduleWorkoutReminders(
       daysOfWeek: days,
       hour: hour,
       minute: minute,
@@ -161,7 +166,7 @@ Future<void> rescheduleWorkoutReminders(dynamic ref, {String? language}) async {
       body: l10n.settingsReminderNotificationBody,
     );
   } else {
-    await notificationService.cancelWorkoutReminders();
+    await notifications.cancelWorkoutReminders();
   }
 }
 

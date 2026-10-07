@@ -21,6 +21,7 @@ class _MockNotificationService extends NotificationService {
   _MockNotificationService() : super.test();
 
   int scheduleWorkoutRemindersCalls = 0;
+  int cancelWorkoutRemindersCalls = 0;
   String? lastTitle;
   String? lastBody;
 
@@ -35,6 +36,11 @@ class _MockNotificationService extends NotificationService {
     scheduleWorkoutRemindersCalls++;
     lastTitle = title;
     lastBody = body;
+  }
+
+  @override
+  Future<void> cancelWorkoutReminders() async {
+    cancelWorkoutRemindersCalls++;
   }
 
   @override
@@ -290,7 +296,11 @@ void main() {
           ],
         );
 
-        await rescheduleWorkoutReminders(container);
+        await rescheduleWorkoutReminders(
+          repo: container.read(settingsRepositoryProvider),
+          notifications: mockNotifier,
+          languageCode: 'vi',
+        );
 
         expect(mockNotifier.scheduleWorkoutRemindersCalls, equals(1));
         expect(mockNotifier.lastTitle, equals('Đến giờ tập rồi 💪'));
@@ -307,6 +317,17 @@ void main() {
           mockNotifier.lastBody,
           equals('Your scheduled workout is waiting!'),
         );
+
+        // When reminder is disabled, it cancels reminders
+        await container
+            .read(settingsRepositoryProvider)
+            .setReminderEnabled(false);
+        await rescheduleWorkoutReminders(
+          repo: container.read(settingsRepositoryProvider),
+          notifications: mockNotifier,
+          languageCode: 'en',
+        );
+        expect(mockNotifier.cancelWorkoutRemindersCalls, equals(1));
 
         container.dispose();
         await db.close();

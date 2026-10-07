@@ -67,7 +67,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         _reminderMinute = picked.minute;
       });
       if (_reminderEnabled) {
-        await rescheduleWorkoutReminders(ref);
+        await rescheduleWorkoutReminders(
+          repo: repo,
+          notifications: ref.read(notificationServiceProvider),
+          languageCode: ref.read(languageProvider),
+        );
       }
     }
   }
@@ -251,16 +255,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               final repo = ref.read(settingsRepositoryProvider);
               await repo.setReminderEnabled(val);
               setState(() => _reminderEnabled = val);
-              if (val) {
-                await ref
-                    .read(notificationServiceProvider)
-                    .requestPermissions();
-                await rescheduleWorkoutReminders(ref);
-              } else {
-                await ref
-                    .read(notificationServiceProvider)
-                    .cancelWorkoutReminders();
-              }
+              await rescheduleWorkoutReminders(
+                repo: repo,
+                notifications: ref.read(notificationServiceProvider),
+                languageCode: ref.read(languageProvider),
+              );
             },
             onPickTime: _pickTime,
             onDaySelected: (day, selected) async {
@@ -271,11 +270,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _reminderDays.remove(day);
                 }
               });
-              await ref
-                  .read(settingsRepositoryProvider)
-                  .setReminderDays(_reminderDays);
+              final repo = ref.read(settingsRepositoryProvider);
+              await repo.setReminderDays(_reminderDays);
               if (_reminderEnabled) {
-                await rescheduleWorkoutReminders(ref);
+                await rescheduleWorkoutReminders(
+                  repo: repo,
+                  notifications: ref.read(notificationServiceProvider),
+                  languageCode: ref.read(languageProvider),
+                );
               }
             },
           ),

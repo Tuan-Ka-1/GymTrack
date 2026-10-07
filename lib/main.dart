@@ -34,32 +34,22 @@ void main() async {
 
   // Schedule workout reminders if enabled
   final repo = SettingsRepositoryImpl(prefs, db);
-  final reminderEnabled = await repo.getReminderEnabled();
-  if (reminderEnabled) {
-    await notificationService.requestPermissions();
-    final days = await repo.getReminderDays();
-    final hour = await repo.getReminderHour();
-    final minute = await repo.getReminderMinute();
-    final savedLang = prefs.getString(AppConstants.keyLanguage);
-    String languageCode = 'en';
-    if (savedLang != null && (savedLang == 'en' || savedLang == 'vi')) {
-      languageCode = savedLang;
-    } else {
-      try {
-        final platformLocale =
-            WidgetsBinding.instance.platformDispatcher.locale.languageCode;
-        if (platformLocale == 'vi') languageCode = 'vi';
-      } catch (_) {}
-    }
-    final l10n = lookupAppLocalizations(Locale(languageCode));
-    await notificationService.scheduleWorkoutReminders(
-      daysOfWeek: days,
-      hour: hour,
-      minute: minute,
-      title: l10n.settingsReminderNotificationTitle,
-      body: l10n.settingsReminderNotificationBody,
-    );
+  final savedLang = prefs.getString(AppConstants.keyLanguage);
+  String languageCode = 'en';
+  if (savedLang != null && (savedLang == 'en' || savedLang == 'vi')) {
+    languageCode = savedLang;
+  } else {
+    try {
+      final platformLocale =
+          WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+      if (platformLocale == 'vi') languageCode = 'vi';
+    } catch (_) {}
   }
+  await rescheduleWorkoutReminders(
+    repo: repo,
+    notifications: notificationService,
+    languageCode: languageCode,
+  );
 
   runApp(
     ProviderScope(
