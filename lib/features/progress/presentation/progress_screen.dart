@@ -134,7 +134,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                       );
                     },
                     loading: () => const LinearProgressIndicator(),
-                    error: (e, _) => Text('Error: $e'),
+                    error: (e, _) => Text(l10n.commonError(e.toString())),
                   ),
                   const SizedBox(height: 12),
                   // Metric toggle: 1RM vs Max Weight vs Volume

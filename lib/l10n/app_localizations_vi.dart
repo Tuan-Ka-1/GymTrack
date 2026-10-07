@@ -94,7 +94,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get homeNoRoutineDesc =>
-      'Chưa chọn giáo án. Nhấn bắt đầu để tập tự do.';
+      'Chưa chọn chương trình tập. Nhấn bắt đầu để tập tự do.';
 
   @override
   String get homeStartWorkout => 'BẮT ĐẦU TẬP';
@@ -127,23 +127,23 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get workoutPlansTitle => 'Giáo án tập luyện';
+  String get workoutPlansTitle => 'Chương trình tập luyện';
 
   @override
-  String get workoutPlansNewTooltip => 'Tạo giáo án';
+  String get workoutPlansNewTooltip => 'Tạo chương trình tập';
 
   @override
-  String get workoutPlansEmptyTitle => 'Chưa có giáo án nào';
+  String get workoutPlansEmptyTitle => 'Chưa có chương trình tập nào';
 
   @override
   String get workoutPlansEmptySubtitle =>
-      'Tạo giáo án đầu tiên của bạn hoặc bắt đầu với giáo án mẫu.';
+      'Tạo chương trình tập đầu tiên của bạn hoặc bắt đầu với chương trình mẫu.';
 
   @override
-  String get workoutPlansCreateButton => 'Tạo giáo án';
+  String get workoutPlansCreateButton => 'Tạo chương trình tập';
 
   @override
-  String get workoutPlansDeleteTitle => 'Xoá giáo án?';
+  String get workoutPlansDeleteTitle => 'Xoá chương trình tập?';
 
   @override
   String workoutPlansDeleteMessage(String name) {
@@ -151,7 +151,7 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get workoutPlansDeleteAction => 'Xoá giáo án';
+  String get workoutPlansDeleteAction => 'Xoá chương trình tập';
 
   @override
   String workoutPlansDayCount(int count) {
@@ -164,10 +164,11 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get dialogCreatePlanTitle => 'Tạo giáo án mới';
+  String get dialogCreatePlanTitle => 'Tạo chương trình tập mới';
 
   @override
-  String get dialogPlanNameLabel => 'Tên giáo án (ví dụ: Upper Lower, PPL)';
+  String get dialogPlanNameLabel =>
+      'Tên chương trình tập (ví dụ: Upper Lower, PPL)';
 
   @override
   String get dialogPlanDescLabel => 'Mô tả (tuỳ chọn)';
@@ -179,10 +180,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get dialogWorkoutDayHint => 'Tên ngày tập (ví dụ: Push, Ngực & Lưng)';
 
   @override
-  String get dialogRenamePlanTitle => 'Đổi tên giáo án';
+  String get dialogRenamePlanTitle => 'Đổi tên chương trình tập';
 
   @override
-  String get dialogRenamePlanHint => 'Tên giáo án';
+  String get dialogRenamePlanHint => 'Tên chương trình tập';
 
   @override
   String get dialogRenameDayTitle => 'Đổi tên ngày tập';
@@ -206,7 +207,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get dialogRestSecondsLabel => 'Thời gian nghỉ (giây)';
 
   @override
-  String get planDetailRenameTooltip => 'Đổi tên giáo án';
+  String get planDetailRenameTooltip => 'Đổi tên chương trình tập';
 
   @override
   String get planDetailAddDay => 'Thêm ngày';
@@ -761,7 +762,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get settingsExportSubtitle =>
-      'Xuất toàn bộ lịch sử, giáo án và số đo cơ thể';
+      'Xuất toàn bộ lịch sử, chương trình tập và số đo cơ thể';
 
   @override
   String get settingsImportTitle => 'Khôi phục sao lưu';
@@ -828,7 +829,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get settingsDeleteAllDialogMessage =>
-      'Hành động này sẽ xoá hoàn toàn lịch sử tập, bài tập tự tạo, giáo án và số đo cơ thể. Hành động KHÔNG THỂ hoàn tác.';
+      'Hành động này sẽ xoá hoàn toàn lịch sử tập, bài tập tự tạo, chương trình tập và số đo cơ thể. Hành động KHÔNG THỂ hoàn tác.';
 
   @override
   String get settingsDeleteAllDialogConfirm => 'XOÁ TẤT CẢ';

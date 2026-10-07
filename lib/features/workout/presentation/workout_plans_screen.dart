@@ -217,7 +217,7 @@ class WorkoutPlansScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(l10n.commonError(e.toString()))),
       ),
     );
   }
