@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -6,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/constants/app_constants.dart';
 import 'core/providers/app_providers.dart';
 import 'core/theme/app_theme.dart';
+import 'core/utils/language_resolver.dart';
 import 'data/database/app_database.dart';
 import 'data/repositories/settings_repository_impl.dart';
 import 'features/exercises/data/exercise_catalog_loader.dart';
@@ -35,16 +37,19 @@ void main() async {
   // Schedule workout reminders if enabled
   final repo = SettingsRepositoryImpl(prefs, db);
   final savedLang = prefs.getString(AppConstants.keyLanguage);
-  String languageCode = 'en';
-  if (savedLang != null && (savedLang == 'en' || savedLang == 'vi')) {
-    languageCode = savedLang;
-  } else {
-    try {
-      final platformLocale =
-          WidgetsBinding.instance.platformDispatcher.locale.languageCode;
-      if (platformLocale == 'vi') languageCode = 'vi';
-    } catch (_) {}
+  String? platformLocale;
+  try {
+    platformLocale =
+        WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+  } on Object catch (e) {
+    if (kDebugMode) {
+      debugPrint('main: unable to inspect platformDispatcher locale: $e');
+    }
   }
+  final languageCode = resolveLanguageCode(
+    saved: savedLang,
+    platformLanguageCode: platformLocale,
+  );
   await rescheduleWorkoutReminders(
     repo: repo,
     notifications: notificationService,

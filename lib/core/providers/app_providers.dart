@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/app_constants.dart';
+import '../utils/language_resolver.dart';
 
 import '../../data/database/app_database.dart';
 import '../../data/repositories/workout_repository_impl.dart';
@@ -113,20 +115,36 @@ final weightUnitProvider = NotifierProvider<WeightUnitNotifier, String>(
 class LanguageNotifier extends Notifier<String> {
   @override
   String build() {
+    String? saved;
     try {
       final prefs = ref.watch(sharedPreferencesProvider);
-      final saved = prefs.getString(AppConstants.keyLanguage);
-      if (saved != null && (saved == 'en' || saved == 'vi')) {
-        return saved;
+      saved = prefs.getString(AppConstants.keyLanguage);
+    } on Object catch (e) {
+      // In isolated unit tests where sharedPreferencesProvider is intentionally
+      // not overridden, fallback gracefully to default.
+      if (kDebugMode && e is! UnimplementedError) {
+        debugPrint('LanguageNotifier: failed reading saved language: $e');
       }
-    } catch (_) {}
+    }
 
+    String? platformLocale;
     try {
-      final platformLocale =
+      platformLocale =
           WidgetsBinding.instance.platformDispatcher.locale.languageCode;
-      if (platformLocale == 'vi') return 'vi';
-    } catch (_) {}
-    return 'en';
+    } on Object catch (e) {
+      // WidgetsBinding may not be initialized in non-widget unit tests.
+      if (kDebugMode &&
+          !e.toString().contains('Binding has not yet been initialized')) {
+        debugPrint(
+          'LanguageNotifier: failed reading platformDispatcher locale: $e',
+        );
+      }
+    }
+
+    return resolveLanguageCode(
+      saved: saved,
+      platformLanguageCode: platformLocale,
+    );
   }
 
   Future<void> setLanguage(String lang) async {

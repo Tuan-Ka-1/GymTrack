@@ -218,7 +218,8 @@ class ExerciseDisplayHelper {
         if (decoded is List) {
           return decoded.map((e) => e.toString()).toList();
         }
-      } catch (_) {
+      } on FormatException {
+        // Fallback for legacy comma-separated values (e.g. "Triceps, Shoulders")
         return exercise.secondaryMuscles!
             .split(',')
             .map((e) => e.trim())
