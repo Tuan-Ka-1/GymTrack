@@ -104,30 +104,33 @@ class HistoryScreen extends ConsumerWidget {
                                     ),
                                   ),
                                 const SizedBox(height: 12),
-                                Row(
-                                  children: [
-                                    _buildChip(
-                                      Icons.schedule,
-                                      Formatters.formatDuration(
-                                        session.durationMinutes,
+                                SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      _buildChip(
+                                        Icons.schedule,
+                                        Formatters.formatDuration(
+                                          session.durationMinutes,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    _buildChip(
-                                      Icons.bar_chart,
-                                      Formatters.formatVolume(
-                                        session.totalVolume,
-                                        unit: weightUnit,
+                                      const SizedBox(width: 8),
+                                      _buildChip(
+                                        Icons.bar_chart,
+                                        Formatters.formatVolume(
+                                          session.totalVolume,
+                                          unit: weightUnit,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    _buildChip(
-                                      Icons.fitness_center,
-                                      l10n.historyExercisesCount(
-                                        exSessions.length,
+                                      const SizedBox(width: 8),
+                                      _buildChip(
+                                        Icons.fitness_center,
+                                        l10n.historyExercisesCount(
+                                          exSessions.length,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ],
                             );

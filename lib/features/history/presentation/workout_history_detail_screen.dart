@@ -94,27 +94,32 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
                           ),
                           const Divider(height: 24),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              _buildMiniStat(
-                                l10n.summaryDuration,
-                                Formatters.formatDuration(
-                                  session.durationMinutes,
+                              Expanded(
+                                child: _buildMiniStat(
+                                  l10n.summaryDuration,
+                                  Formatters.formatDuration(
+                                    session.durationMinutes,
+                                  ),
+                                  theme,
                                 ),
-                                theme,
                               ),
-                              _buildMiniStat(
-                                l10n.summaryVolume,
-                                Formatters.formatVolume(
-                                  session.totalVolume,
-                                  unit: weightUnit,
+                              Expanded(
+                                child: _buildMiniStat(
+                                  l10n.summaryVolume,
+                                  Formatters.formatVolume(
+                                    session.totalVolume,
+                                    unit: weightUnit,
+                                  ),
+                                  theme,
                                 ),
-                                theme,
                               ),
-                              _buildMiniStat(
-                                l10n.summaryExercises,
-                                '${exSessions.length}',
-                                theme,
+                              Expanded(
+                                child: _buildMiniStat(
+                                  l10n.summaryExercises,
+                                  '${exSessions.length}',
+                                  theme,
+                                ),
                               ),
                             ],
                           ),
@@ -190,20 +195,24 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                l10n.historyDetailSetSummary(
-                                                  Formatters.formatWeight(
-                                                    s.weight,
-                                                    unit: weightUnit,
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  l10n.historyDetailSetSummary(
+                                                    Formatters.formatWeight(
+                                                      s.weight,
+                                                      unit: weightUnit,
+                                                    ),
+                                                    s.reps,
                                                   ),
-                                                  s.reps,
-                                                ),
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w600,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                                 ),
                                               ),
-                                              const Spacer(),
+                                              const SizedBox(width: 8),
                                               if (s.completed)
                                                 const Icon(
                                                   Icons.check_circle,
@@ -241,10 +250,19 @@ class WorkoutHistoryDetailScreen extends ConsumerWidget {
   Widget _buildMiniStat(String label, String value, ThemeData theme) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 12, color: Colors.grey),
+        ),
         const SizedBox(height: 2),
         Text(
           value,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,

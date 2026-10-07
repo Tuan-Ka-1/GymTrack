@@ -74,8 +74,11 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 4,
                     children: [
                       Text(
                         l10n.progressExerciseAnalytics,
@@ -326,10 +329,12 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen> {
                         size: 24,
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        l10n.progressPrTitle,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          l10n.progressPrTitle,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],

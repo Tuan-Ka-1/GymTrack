@@ -233,11 +233,15 @@ class HomeScreen extends ConsumerWidget {
                                   color: Colors.grey,
                                 ),
                                 const SizedBox(width: 6),
-                                Text(
-                                  l10n.homeBodyWeight,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
+                                Expanded(
+                                  child: Text(
+                                    l10n.homeBodyWeight,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -300,11 +304,15 @@ class HomeScreen extends ConsumerWidget {
                                 color: Colors.grey,
                               ),
                               const SizedBox(width: 6),
-                              Text(
-                                l10n.homeLastSession,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
+                              Expanded(
+                                child: Text(
+                                  l10n.homeLastSession,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               ),
                             ],
@@ -357,12 +365,15 @@ class HomeScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                l10n.homeRecentPrHighlights,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  l10n.homeRecentPrHighlights,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               TextButton(
                 onPressed: () => context.go('/progress'),
                 child: Text(l10n.homeViewAll),

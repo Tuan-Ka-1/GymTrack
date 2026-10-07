@@ -45,11 +45,9 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
       maxChildSize: 0.95,
       minChildSize: 0.5,
       builder: (context, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: theme.scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
+        return Material(
+          color: theme.scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           child: Column(
             children: [
               // Handle bar
@@ -71,13 +69,14 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                 ),
                 child: Row(
                   children: [
-                    Text(
-                      l10n.exercisePickerTitle,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        l10n.exercisePickerTitle,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.of(context).pop(),
@@ -348,6 +347,8 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
                                   icon: const Icon(
                                     Icons.info_outline,
                                     size: 20,
@@ -357,17 +358,30 @@ class _ExercisePickerDialogState extends ConsumerState<ExercisePickerDialog> {
                                   onPressed: () =>
                                       ExerciseDetailScreen.show(context, ex),
                                 ),
-                                FilledButton.icon(
+                                const SizedBox(width: 8),
+                                FilledButton(
                                   style: FilledButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
+                                      horizontal: 10,
+                                      vertical: 4,
                                     ),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
                                   ),
-                                  icon: const Icon(Icons.add, size: 16),
-                                  label: Text(l10n.commonAdd.toUpperCase()),
                                   onPressed: () =>
                                       Navigator.of(context).pop(ex),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.add, size: 14),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        l10n.commonAdd.toUpperCase(),
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),

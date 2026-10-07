@@ -66,11 +66,9 @@ class ExerciseDetailScreen extends ConsumerWidget {
       maxChildSize: 0.95,
       minChildSize: 0.45,
       builder: (context, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: theme.scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
+        return Material(
+          color: theme.scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           child: Column(
             children: [
               // Drag handle
